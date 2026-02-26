@@ -16,11 +16,7 @@ function Counter({ end, suffix = '' }: { end: number; suffix?: string }) {
     if (!end) return;
     let c = 0;
     const step = Math.max(end / 50, 1);
-    const iv = setInterval(() => {
-      c += step;
-      if (c >= end) { setCount(end); clearInterval(iv); }
-      else setCount(Math.floor(c));
-    }, 30);
+    const iv = setInterval(() => { c += step; if (c >= end) { setCount(end); clearInterval(iv); } else setCount(Math.floor(c)); }, 30);
     return () => clearInterval(iv);
   }, [end]);
   return <>{count.toLocaleString()}{suffix}</>;
@@ -28,10 +24,7 @@ function Counter({ end, suffix = '' }: { end: number; suffix?: string }) {
 
 export default function Home() {
   const [stats, setStats] = useState<Stats | null>(null);
-
-  useEffect(() => {
-    fetch('/api/stats').then(r => r.json()).then(setStats).catch(() => {});
-  }, []);
+  useEffect(() => { fetch('/api/stats').then(r => r.json()).then(setStats).catch(() => {}); }, []);
 
   const uploads = stats?.totals?.uploads || 0;
   const messages = stats?.totals?.messages || 0;
@@ -46,30 +39,28 @@ export default function Home() {
       <section className="bg-white pt-14">
         <div className="mx-auto max-w-5xl px-6 py-20 flex flex-col lg:flex-row items-center gap-16">
           <div className="flex-1 text-center lg:text-left animate-fade-in-up">
+            <div className="mb-4 inline-flex items-center gap-2 rounded-full bg-blue-50 px-4 py-1.5 text-xs font-semibold text-[#1877F2]">
+              Your data trained a $100B industry. You got $0.
+            </div>
             <h1 className="text-4xl sm:text-5xl lg:text-[48px] font-extrabold leading-tight tracking-tight text-[#1c1e21]">
-              Own your AI data.<br />Prove it. Sell it.
+              The AI data economy<br />starts with you.
             </h1>
             <p className="mt-5 text-lg text-[#65676b] leading-relaxed max-w-lg mx-auto lg:mx-0">
-              The marketplace for AI conversation datasets with on-chain proof of ownership.
-              Upload your ChatGPT or Claude exports, register a SHA-256 hash on Solana, and list for sale.
+              Every conversation you have with ChatGPT, Claude, or Gemini becomes training data for the next model.
+              Clork lets you claim ownership, prove it on-chain, and get paid when others use it.
             </p>
             <div className="mt-8 flex items-center justify-center lg:justify-start gap-3 flex-wrap">
               <Link href="/upload"
                 className="rounded-lg bg-[#1877F2] px-7 py-3.5 text-base font-semibold text-white transition-all hover:bg-[#166fe5] hover:shadow-lg hover:-translate-y-0.5">
-                Upload Data
+                Upload Your Data
               </Link>
               <Link href="/marketplace"
                 className="rounded-lg bg-gray-100 px-7 py-3.5 text-base font-semibold text-[#1c1e21] transition-all hover:bg-gray-200 hover:-translate-y-0.5">
                 Browse Marketplace
               </Link>
-              <Link href="/api-docs"
-                className="px-5 py-3.5 text-base font-medium text-[#65676b] transition-colors hover:text-[#1877F2]">
-                API Docs &rarr;
-              </Link>
             </div>
           </div>
 
-          {/* Live preview card — pulls from real categories */}
           <div className="shrink-0 w-full max-w-sm animate-fade-in-up delay-200">
             <div className="relative">
               <div className="absolute -inset-3 rounded-3xl bg-blue-50" />
@@ -85,7 +76,7 @@ export default function Home() {
                     </div>
                     <div className="flex-1 min-w-0">
                       <span className="text-sm font-semibold text-[#1c1e21] capitalize">{cat.category}</span>
-                      <div className="text-xs text-[#8a8d91]">{Number(cat.count)} datasets &middot; {Number(cat.messages).toLocaleString()} messages</div>
+                      <div className="text-xs text-[#8a8d91]">{Number(cat.count)} datasets &middot; {Number(cat.messages).toLocaleString()} msgs</div>
                     </div>
                     <div className="h-2 w-2 shrink-0 rounded-full bg-green-500 animate-pulse-dot" />
                   </div>
@@ -99,7 +90,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Real stats from DB */}
+      {/* Stats */}
       {(uploads > 0) && (
         <section className="border-t border-gray-100 bg-white">
           <div className="mx-auto max-w-5xl px-6 py-12">
@@ -121,20 +112,64 @@ export default function Home() {
         </section>
       )}
 
-      {/* How it works */}
+      {/* WHY DATA MATTERS — the big education section */}
       <section className="bg-[#f0f2f5] py-20 px-6">
         <div className="mx-auto max-w-5xl">
           <div className="text-center mb-14 animate-fade-in">
-            <h2 className="text-3xl font-bold text-[#1c1e21]">How it works</h2>
-            <p className="mt-2 text-[#65676b]">Three steps. No middlemen.</p>
+            <h2 className="text-3xl font-bold text-[#1c1e21]">Your conversations are the product</h2>
+            <p className="mt-3 text-[#65676b] max-w-2xl mx-auto leading-relaxed">
+              Every major LLM — GPT-4, Claude, Gemini, LLaMA — is built on human conversation data.
+              Without your inputs, corrections, and feedback, these models wouldn&apos;t exist. Here&apos;s the scale of what&apos;s at stake.
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-3 gap-5 mb-10">
+            {[
+              { stat: '$100B+', label: 'AI industry revenue built on user-generated data', desc: 'OpenAI, Anthropic, Google, and Meta collectively generate over $100 billion from models trained on conversations like yours.' },
+              { stat: '$0', label: 'What you got paid for your training data', desc: 'Every prompt you\'ve written, every correction you\'ve made, every preference you\'ve expressed — all captured and used for free.' },
+              { stat: '15T+', label: 'Tokens in LLM training datasets', desc: 'Modern LLMs train on trillions of tokens. A significant and growing portion comes directly from user conversations with AI assistants.' },
+            ].map((s, i) => (
+              <div key={i} className="rounded-2xl bg-white p-7 shadow-card animate-fade-in-up" style={{ animationDelay: `${i * 150}ms` }}>
+                <div className="text-3xl font-extrabold text-[#1877F2] mb-2">{s.stat}</div>
+                <div className="text-sm font-semibold text-[#1c1e21] mb-2">{s.label}</div>
+                <p className="text-sm text-[#65676b] leading-relaxed">{s.desc}</p>
+              </div>
+            ))}
+          </div>
+
+          <div className="rounded-2xl bg-white shadow-card p-8 animate-fade-in-up delay-500">
+            <h3 className="text-lg font-bold text-[#1c1e21] mb-4">Why conversation data is uniquely valuable</h3>
+            <div className="grid md:grid-cols-2 gap-6">
+              {[
+                { title: 'RLHF depends on human preferences', desc: 'Reinforcement Learning from Human Feedback — the technique that made ChatGPT useful — requires massive volumes of human preference data. Your thumbs-up, edits, and rephrases are the signal.' },
+                { title: 'Synthetic data has limits', desc: 'AI-generated training data degrades model quality over time (model collapse). Real human conversations are irreplaceable for maintaining diversity and quality in training sets.' },
+                { title: 'Domain expertise is scarce', desc: 'Conversations about medicine, law, finance, and specialized coding are extremely valuable because domain experts are rare. Your professional AI conversations are worth more than you think.' },
+                { title: 'The data moat is the real moat', desc: 'OpenAI\'s advantage isn\'t just their models — it\'s the billions of conversations they\'ve collected. Whoever controls the best data controls the best AI. You should control yours.' },
+              ].map((item, i) => (
+                <div key={i} className="animate-fade-in-up" style={{ animationDelay: `${(i + 4) * 100}ms` }}>
+                  <h4 className="text-sm font-semibold text-[#1c1e21] mb-1">{item.title}</h4>
+                  <p className="text-sm text-[#65676b] leading-relaxed">{item.desc}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* How it works */}
+      <section className="bg-white py-20 px-6">
+        <div className="mx-auto max-w-5xl">
+          <div className="text-center mb-14 animate-fade-in">
+            <h2 className="text-3xl font-bold text-[#1c1e21]">How Clork works</h2>
+            <p className="mt-2 text-[#65676b]">Three steps. No middlemen. Fully on-chain.</p>
           </div>
           <div className="grid md:grid-cols-3 gap-5">
             {[
-              { num: '1', title: 'Upload & hash', desc: 'Drop your ChatGPT or Claude export. Clork parses it, auto-categorizes the content, and generates a unique SHA-256 fingerprint of your dataset.', color: 'bg-blue-50 text-[#1877F2]' },
-              { num: '2', title: 'Register on Solana', desc: 'Write that hash to Solana via the Memo Program. This creates an immutable, timestamped record that you owned this data at this point in time. ~$0.001.', color: 'bg-green-50 text-green-600' },
-              { num: '3', title: 'List & get paid', desc: 'Set your price in SOL. When someone buys, 95% goes directly to your wallet. Every transaction is verifiable on-chain. No disputes, no chargebacks.', color: 'bg-orange-50 text-orange-500' },
+              { num: '1', title: 'Upload & hash', desc: 'Drop your ChatGPT or Claude export. Clork parses and categorizes your conversations, then generates a unique SHA-256 fingerprint of the entire dataset.', color: 'bg-blue-50 text-[#1877F2]' },
+              { num: '2', title: 'Register on Solana', desc: 'Write that hash to the Solana blockchain via the Memo Program. This creates an immutable, timestamped record proving you owned this data. ~$0.001.', color: 'bg-green-50 text-green-600' },
+              { num: '3', title: 'List & get paid', desc: 'Set your price in SOL. Buyers pay directly — 95% to your wallet, 5% platform fee. Developers can also buy via API using the x402 protocol (USDC).', color: 'bg-orange-50 text-orange-500' },
             ].map((s, i) => (
-              <div key={i} className={`rounded-2xl bg-white p-7 shadow-card transition-all hover:shadow-card-hover hover:-translate-y-1 animate-fade-in-up`} style={{ animationDelay: `${(i + 1) * 150}ms` }}>
+              <div key={i} className="rounded-2xl bg-gray-50 p-7 transition-all hover:bg-gray-100 hover:-translate-y-1 animate-fade-in-up" style={{ animationDelay: `${(i + 1) * 150}ms` }}>
                 <div className={`flex h-11 w-11 items-center justify-center rounded-full ${s.color} mb-5`}>
                   <span className="text-lg font-bold">{s.num}</span>
                 </div>
@@ -146,59 +181,117 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Value props */}
-      <section className="bg-white py-20 px-6">
+      {/* $CLORK TOKEN — full explanation */}
+      <section className="bg-[#f0f2f5] py-20 px-6">
         <div className="mx-auto max-w-5xl">
           <div className="text-center mb-14 animate-fade-in">
-            <h2 className="text-3xl font-bold text-[#1c1e21]">Why this matters</h2>
-            <p className="mt-2 text-[#65676b] max-w-lg mx-auto">AI companies train on your conversations without compensating you. Clork changes that.</p>
+            <h2 className="text-3xl font-bold text-[#1c1e21]">The $CLORK token</h2>
+            <p className="mt-3 text-[#65676b] max-w-2xl mx-auto leading-relaxed">
+              $CLORK is the native token of the Clork data marketplace. It aligns incentives between data contributors, buyers, and the platform.
+            </p>
           </div>
-          <div className="grid md:grid-cols-2 gap-5">
-            {[
-              { title: 'Verifiable ownership', desc: 'Your data hash is written to Solana. Anyone can independently verify you owned this dataset before anyone else. No trust required — just math.' },
-              { title: 'x402 protocol', desc: 'Developers can access any dataset with a single HTTP GET request. Payment in USDC is handled automatically in-flight via Coinbase\'s open x402 standard.' },
-              { title: 'Instant settlement', desc: 'Payments settle on Solana in ~400ms. 95% goes directly to your wallet. No 30-day holds, no payment processor taking a cut, no disputes.' },
-              { title: 'Multi-format support', desc: 'ChatGPT JSON exports, Claude exports, or raw text. Auto-categorized into coding, research, business, creative, crypto, education, medical, legal.' },
-            ].map((f, i) => (
-              <div key={i} className="rounded-2xl bg-gray-50 p-7 transition-all hover:bg-gray-100 animate-fade-in-up" style={{ animationDelay: `${i * 100}ms` }}>
-                <h3 className="text-base font-semibold text-[#1c1e21] mb-2">{f.title}</h3>
-                <p className="text-sm text-[#65676b] leading-relaxed">{f.desc}</p>
+
+          <div className="grid md:grid-cols-2 gap-5 mb-8">
+            <div className="rounded-2xl bg-white shadow-card p-7 animate-fade-in-up delay-100">
+              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-blue-50 mb-4">
+                <Image src="/logo.png" alt="Clork" width={24} height={24} className="h-6 w-6" />
               </div>
-            ))}
+              <h3 className="text-lg font-semibold text-[#1c1e21] mb-2">Earn by contributing</h3>
+              <p className="text-sm text-[#65676b] leading-relaxed mb-4">
+                Every dataset you upload and list earns $CLORK rewards proportional to the quality and volume of your data.
+                More conversations, rarer categories (medical, legal, domain-specific), and verified on-chain hashes earn higher rewards.
+              </p>
+              <ul className="space-y-2 text-sm text-[#65676b]">
+                <li className="flex items-start gap-2"><span className="text-[#1877F2] font-bold mt-0.5">+</span> Upload reward — tokens for every dataset registered on-chain</li>
+                <li className="flex items-start gap-2"><span className="text-[#1877F2] font-bold mt-0.5">+</span> Quality bonus — higher rewards for rare/specialized categories</li>
+                <li className="flex items-start gap-2"><span className="text-[#1877F2] font-bold mt-0.5">+</span> Sale commission — bonus $CLORK on top of SOL/USDC sale revenue</li>
+              </ul>
+            </div>
+
+            <div className="rounded-2xl bg-white shadow-card p-7 animate-fade-in-up delay-300">
+              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-orange-50 mb-4">
+                <span className="text-lg font-bold text-orange-500">$</span>
+              </div>
+              <h3 className="text-lg font-semibold text-[#1c1e21] mb-2">Spend for access</h3>
+              <p className="text-sm text-[#65676b] leading-relaxed mb-4">
+                AI companies and researchers use $CLORK to access premium datasets, bulk download APIs, and priority listings.
+                Holding $CLORK unlocks lower platform fees and early access to new dataset categories.
+              </p>
+              <ul className="space-y-2 text-sm text-[#65676b]">
+                <li className="flex items-start gap-2"><span className="text-orange-500 font-bold mt-0.5">$</span> Pay for datasets — use $CLORK alongside SOL/USDC</li>
+                <li className="flex items-start gap-2"><span className="text-orange-500 font-bold mt-0.5">$</span> Reduced fees — holders get lower platform commission</li>
+                <li className="flex items-start gap-2"><span className="text-orange-500 font-bold mt-0.5">$</span> Governance — vote on platform decisions and fee structures</li>
+              </ul>
+            </div>
+          </div>
+
+          <div className="rounded-2xl bg-white shadow-card p-7 animate-fade-in-up delay-500">
+            <h3 className="text-lg font-semibold text-[#1c1e21] mb-4">Token economics</h3>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+              {[
+                { label: 'Network', value: 'Solana (SPL)' },
+                { label: 'Platform fee', value: '5% of sales' },
+                { label: 'Seller revenue', value: '95%' },
+                { label: 'Launch', value: 'pump.fun' },
+              ].map(t => (
+                <div key={t.label} className="rounded-xl bg-gray-50 p-4">
+                  <div className="text-[10px] uppercase text-[#8a8d91] tracking-wider">{t.label}</div>
+                  <div className="mt-1 text-sm font-semibold text-[#1c1e21]">{t.value}</div>
+                </div>
+              ))}
+            </div>
+            <p className="text-sm text-[#65676b] leading-relaxed">
+              $CLORK creates a flywheel: more contributors upload data → marketplace becomes more valuable → more buyers pay for access →
+              $CLORK demand increases → rewards attract more contributors. The token is the coordination layer that makes the data economy work.
+            </p>
+          </div>
+
+          <div className="mt-6 rounded-2xl bg-[#1877F2] p-8 text-center animate-scale-in">
+            <h3 className="text-xl font-bold text-white mb-2">Token launch coming soon</h3>
+            <p className="text-sm text-white/80 mb-6 max-w-md mx-auto">
+              $CLORK will launch on pump.fun on Solana. Follow us to be first.
+            </p>
+            <div className="flex items-center justify-center gap-4">
+              {['Twitter', 'Telegram'].map(name => (
+                <a key={name} href="#" className="rounded-lg bg-white/20 px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-white/30">{name}</a>
+              ))}
+            </div>
           </div>
         </div>
       </section>
 
-      {/* x402 + Solana */}
-      <section className="bg-[#f0f2f5] py-20 px-6">
+      {/* x402 + Solana tech */}
+      <section className="bg-white py-20 px-6">
         <div className="mx-auto max-w-5xl grid md:grid-cols-2 gap-5">
-          <div className="rounded-2xl bg-white shadow-card p-7 animate-fade-in-up delay-100">
+          <div className="rounded-2xl bg-gray-50 p-7 animate-fade-in-up delay-100">
             <div className="flex items-center gap-2 mb-3">
               <span className="rounded bg-blue-50 px-2.5 py-1 text-xs font-bold text-[#1877F2]">x402</span>
               <span className="text-base font-semibold text-[#1c1e21]">Programmatic access</span>
             </div>
             <p className="text-sm text-[#65676b] leading-relaxed mb-5">
-              Built for developers and AI companies who need data at scale. One API call to browse, one to purchase. No accounts, no API keys — just pay and access.
+              AI companies can access any dataset with a single HTTP request. Payment in USDC is handled automatically in-flight via Coinbase&apos;s open x402 protocol.
+              No accounts. No API keys. Just pay and receive data.
             </p>
             <div className="rounded-xl bg-gray-900 p-4 overflow-x-auto">
               <code className="text-xs text-gray-100 font-mono leading-relaxed block whitespace-pre">{`const res = await x402Fetch(
   "https://clork.xyz/api/data/123"
 );
-// USDC payment handled automatically`}</code>
+// USDC payment → dataset returned`}</code>
             </div>
           </div>
-          <div className="rounded-2xl bg-white shadow-card p-7 animate-fade-in-up delay-300">
+          <div className="rounded-2xl bg-gray-50 p-7 animate-fade-in-up delay-300">
             <div className="flex items-center gap-2 mb-3">
               <span className="rounded bg-green-50 px-2.5 py-1 text-xs font-bold text-green-600">Solana</span>
-              <span className="text-base font-semibold text-[#1c1e21]">Built on the fastest chain</span>
+              <span className="text-base font-semibold text-[#1c1e21]">Built for speed and proof</span>
             </div>
             <p className="text-sm text-[#65676b] leading-relaxed mb-5">
-              Hash registration, payments, and audit trails — all on Solana. Sub-second finality. Negligible fees. Every transaction is publicly verifiable on Solscan.
+              Data hashes registered on Solana via the Memo Program. Sub-second finality. Negligible fees.
+              Every upload, sale, and proof is publicly verifiable. The blockchain is the receipt.
             </p>
             <div className="flex items-center justify-around pt-2">
               {[
                 { value: '~400ms', label: 'Finality' },
-                { value: '<$0.01', label: 'Hash registration' },
+                { value: '<$0.01', label: 'Hash cost' },
                 { value: '95%', label: 'Seller keeps' },
               ].map(s => (
                 <div key={s.label} className="text-center">
@@ -211,16 +304,16 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Clork identity — subtle, at the bottom */}
-      <section className="bg-white py-20 px-6">
+      {/* Clork identity */}
+      <section className="bg-[#f0f2f5] py-20 px-6">
         <div className="mx-auto max-w-5xl">
           <div className="rounded-2xl bg-[#1877F2] p-10 flex flex-col md:flex-row items-center gap-8 text-center md:text-left animate-scale-in">
             <Image src="/logo.png" alt="Clork" width={64} height={64} className="h-16 w-16 shrink-0" />
             <div className="flex-1">
               <h3 className="text-xl font-bold text-white mb-2">Why &quot;Clork&quot;?</h3>
               <p className="text-sm text-white/80 leading-relaxed max-w-lg">
-                Clork started as a thought experiment: what if the systems that process our AI conversations could advocate for the people who created that data?
-                The name is a nod to the invisible clerks — the processes sorting through billions of conversations while the value flows one direction. We think it should flow both ways.
+                Named after the invisible clerks — the processes inside AI systems that sort, categorize, and learn from billions of human conversations
+                while the value flows only to the companies that run them. Clork flips that model. The people who create the data should own it and profit from it.
               </p>
             </div>
             <Link href="/upload"
@@ -232,17 +325,19 @@ export default function Home() {
       </section>
 
       {/* CTA */}
-      <section className="bg-[#f0f2f5] py-20 px-6">
+      <section className="bg-white py-20 px-6">
         <div className="mx-auto max-w-3xl text-center animate-fade-in-up">
-          <h2 className="text-3xl font-bold text-[#1c1e21] mb-3">Your data has value</h2>
-          <p className="text-[#65676b] mb-8 max-w-md mx-auto">Every conversation you&apos;ve had with an AI helped train the next model. Start getting credit for it.</p>
+          <h2 className="text-3xl font-bold text-[#1c1e21] mb-3">Stop giving your data away for free</h2>
+          <p className="text-[#65676b] mb-8 max-w-lg mx-auto">
+            Every prompt, correction, and preference you&apos;ve shared with an AI helped build a trillion-dollar industry. Start getting your share.
+          </p>
           <div className="flex items-center justify-center gap-3">
             <Link href="/upload"
               className="rounded-lg bg-[#1877F2] px-8 py-3.5 text-base font-semibold text-white transition-all hover:bg-[#166fe5] hover:shadow-lg hover:-translate-y-0.5">
               Upload Now
             </Link>
             <Link href="/marketplace"
-              className="rounded-lg bg-white px-8 py-3.5 text-base font-semibold text-[#1c1e21] shadow-card transition-all hover:bg-gray-50">
+              className="rounded-lg bg-gray-100 px-8 py-3.5 text-base font-semibold text-[#1c1e21] transition-all hover:bg-gray-200">
               Browse Marketplace
             </Link>
           </div>
@@ -257,7 +352,7 @@ export default function Home() {
             <span className="text-xs text-[#8a8d91]">Clork &middot; AI Data Marketplace</span>
           </div>
           <p className="text-[11px] text-[#8a8d91] text-center max-w-lg">
-            Clork is a data marketplace. Not financial advice. Your data, your ownership, your responsibility.
+            Clork is a data marketplace platform. Not financial advice. $CLORK is a utility token, not a security. Your data, your ownership, your responsibility.
           </p>
           <div className="flex items-center gap-5">
             <Link href="/api-docs" className="text-xs text-[#65676b] hover:text-[#1877F2] transition-colors">API</Link>
