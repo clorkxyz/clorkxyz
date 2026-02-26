@@ -45,9 +45,12 @@ export default function Home() {
             <h1 className="text-4xl sm:text-5xl lg:text-[48px] font-extrabold leading-tight tracking-tight text-[#1c1e21]">
               The AI data economy<br />starts with you.
             </h1>
-            <p className="mt-5 text-lg text-[#65676b] leading-relaxed max-w-lg mx-auto lg:mx-0">
-              Every conversation you have with ChatGPT, Claude, or Gemini becomes training data for the next model.
-              Clork lets you claim ownership, prove it on-chain, and get paid when others use it.
+            <p className="mt-3 text-base font-medium text-[#1c1e21]">
+              Clork pays you when you contribute data — on your terms.
+            </p>
+            <p className="mt-3 text-lg text-[#65676b] leading-relaxed max-w-lg mx-auto lg:mx-0">
+              Upload your ChatGPT or Claude conversations, get cryptographic proof of ownership on Solana,
+              and earn when AI companies and researchers purchase access.
             </p>
             <div className="mt-8 flex items-center justify-center lg:justify-start gap-3 flex-wrap">
               <Link href="/upload"
