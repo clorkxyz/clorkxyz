@@ -15,22 +15,21 @@ const FEED = [
 
 export default function Database() {
   const [visible, setVisible] = useState(3);
-  useEffect(() => {
-    const iv = setInterval(() => setVisible(v => Math.min(v + 1, FEED.length)), 1500);
-    return () => clearInterval(iv);
-  }, []);
+  useEffect(() => { const iv = setInterval(() => setVisible(v => Math.min(v + 1, FEED.length)), 1500); return () => clearInterval(iv); }, []);
 
   return (
     <div className="min-h-screen bg-[#f0f2f5]">
       <Nav />
-      <div className="max-w-[680px] mx-auto px-4 pt-20 pb-16">
-        <h1 className="text-2xl font-bold text-[#1c1e21] mb-1">Live Feed</h1>
-        <p className="text-sm text-[#65676b] mb-6">Recent uploads coming into the Clork database.</p>
+      <div className="mx-auto max-w-2xl px-6 pt-24 pb-16">
+        <div className="mb-8 animate-fade-in-up">
+          <h1 className="text-2xl font-bold text-[#1c1e21]">Live Feed</h1>
+          <p className="mt-1 text-sm text-[#65676b]">Recent uploads into the Clork database.</p>
+        </div>
 
-        <div className="space-y-2 mb-8">
+        <div className="mb-8 space-y-2">
           {FEED.slice(0, visible).map((item, i) => (
-            <div key={i} className="bg-white rounded-2xl shadow-card p-4 flex items-center gap-4 hover:shadow-card-hover transition-shadow">
-              <div className="w-10 h-10 rounded-full bg-[#e7f3ff] flex items-center justify-center flex-shrink-0">
+            <div key={i} className="flex items-center gap-4 rounded-2xl bg-white p-4 shadow-card transition-all hover:shadow-card-hover animate-fade-in-up" style={{ animationDelay: `${i * 100}ms` }}>
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-blue-50">
                 <span className="text-sm font-bold text-[#1877F2]">{item.cat[0]}</span>
               </div>
               <div className="flex-1">
@@ -40,8 +39,8 @@ export default function Database() {
                 </div>
                 <div className="text-xs text-[#8a8d91]">{item.msgs.toLocaleString()} messages</div>
               </div>
-              <div className="flex items-center gap-2 flex-shrink-0">
-                <div className="w-2 h-2 rounded-full bg-[#31a24c]" />
+              <div className="flex shrink-0 items-center gap-2">
+                <div className="h-2 w-2 rounded-full bg-green-500 animate-pulse-dot" />
                 <span className="text-xs text-[#8a8d91]">{item.time}</span>
               </div>
             </div>
@@ -49,9 +48,7 @@ export default function Database() {
         </div>
 
         <div className="text-center">
-          <Link href="/upload" className="px-6 py-3 bg-[#1877F2] hover:bg-[#166fe5] text-white font-semibold text-sm rounded-lg transition-colors">
-            Add Your Data
-          </Link>
+          <Link href="/upload" className="rounded-lg bg-[#1877F2] px-6 py-3 text-sm font-semibold text-white transition-colors hover:bg-[#166fe5]">Add Your Data</Link>
         </div>
       </div>
     </div>
