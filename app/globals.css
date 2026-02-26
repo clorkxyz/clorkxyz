@@ -1,0 +1,69 @@
+@import "tailwindcss";
+
+@font-face {
+  font-family: 'JetBrains Mono';
+  src: url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700;800&display=swap');
+}
+
+* { box-sizing: border-box; }
+
+body {
+  background: #0a0a0a;
+  color: #00ff41;
+  font-family: 'JetBrains Mono', 'Courier New', monospace;
+  overflow-x: hidden;
+}
+
+::selection { background: #00ff41; color: #0a0a0a; }
+
+@keyframes glitch {
+  0% { text-shadow: 2px 0 #ff0040, -2px 0 #00ff41; }
+  25% { text-shadow: -2px 0 #ff0040, 2px 0 #00ff41; }
+  50% { text-shadow: 2px -1px #ff0040, -2px 1px #00ff41; transform: translate(1px, 0); }
+  75% { text-shadow: -1px 2px #ff0040, 1px -2px #00ff41; }
+  100% { text-shadow: 2px 0 #ff0040, -2px 0 #00ff41; transform: translate(0); }
+}
+
+@keyframes scanline {
+  0% { top: -100%; }
+  100% { top: 100%; }
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+@keyframes flicker {
+  0%, 100% { opacity: 1; }
+  92% { opacity: 1; }
+  93% { opacity: 0.8; }
+  94% { opacity: 1; }
+  96% { opacity: 0.6; }
+  97% { opacity: 1; }
+}
+
+@keyframes typewriter {
+  from { width: 0; }
+  to { width: 100%; }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-5px); }
+}
+
+.glitch { animation: glitch 0.3s ease-in-out infinite alternate; }
+.scanline::after {
+  content: '';
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  height: 4px;
+  background: rgba(0,255,65,0.03);
+  animation: scanline 8s linear infinite;
+  pointer-events: none;
+  z-index: 9999;
+}
+.blink { animation: blink 1s step-end infinite; }
+.flicker { animation: flicker 4s linear infinite; }
+.float { animation: float 3s ease-in-out infinite; }
