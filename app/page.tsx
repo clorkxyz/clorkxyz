@@ -5,11 +5,17 @@ import Link from 'next/link';
 import Image from 'next/image';
 import Nav from '../components/Nav';
 
+interface Stats {
+  totals: { uploads: number; messages: number; users: number };
+  categories: { category: string; count: number; messages: number }[];
+}
+
 function Counter({ end, suffix = '' }: { end: number; suffix?: string }) {
   const [count, setCount] = useState(0);
   useEffect(() => {
+    if (!end) return;
     let c = 0;
-    const step = end / 50;
+    const step = Math.max(end / 50, 1);
     const iv = setInterval(() => {
       c += step;
       if (c >= end) { setCount(end); clearInterval(iv); }
@@ -21,6 +27,17 @@ function Counter({ end, suffix = '' }: { end: number; suffix?: string }) {
 }
 
 export default function Home() {
+  const [stats, setStats] = useState<Stats | null>(null);
+
+  useEffect(() => {
+    fetch('/api/stats').then(r => r.json()).then(setStats).catch(() => {});
+  }, []);
+
+  const uploads = stats?.totals?.uploads || 0;
+  const messages = stats?.totals?.messages || 0;
+  const users = stats?.totals?.users || 0;
+  const categories = stats?.categories || [];
+
   return (
     <div className="min-h-screen bg-white">
       <Nav />
@@ -29,50 +46,52 @@ export default function Home() {
       <section className="bg-white pt-14">
         <div className="mx-auto max-w-5xl px-6 py-20 flex flex-col lg:flex-row items-center gap-16">
           <div className="flex-1 text-center lg:text-left animate-fade-in-up">
-            <h1 className="text-4xl sm:text-5xl lg:text-[52px] font-extrabold leading-tight tracking-tight text-[#1c1e21]">
-              Your AI conversations<br />are worth something.
+            <h1 className="text-4xl sm:text-5xl lg:text-[48px] font-extrabold leading-tight tracking-tight text-[#1c1e21]">
+              Own your AI data.<br />Prove it. Sell it.
             </h1>
             <p className="mt-5 text-lg text-[#65676b] leading-relaxed max-w-lg mx-auto lg:mx-0">
-              Upload your ChatGPT and Claude conversations, get on-chain proof of ownership on Solana, and sell access to your datasets.
+              The marketplace for AI conversation datasets with on-chain proof of ownership.
+              Upload your ChatGPT or Claude exports, register a SHA-256 hash on Solana, and list for sale.
             </p>
             <div className="mt-8 flex items-center justify-center lg:justify-start gap-3 flex-wrap">
               <Link href="/upload"
                 className="rounded-lg bg-[#1877F2] px-7 py-3.5 text-base font-semibold text-white transition-all hover:bg-[#166fe5] hover:shadow-lg hover:-translate-y-0.5">
-                Upload Your Data
+                Upload Data
               </Link>
               <Link href="/marketplace"
                 className="rounded-lg bg-gray-100 px-7 py-3.5 text-base font-semibold text-[#1c1e21] transition-all hover:bg-gray-200 hover:-translate-y-0.5">
                 Browse Marketplace
               </Link>
+              <Link href="/api-docs"
+                className="px-5 py-3.5 text-base font-medium text-[#65676b] transition-colors hover:text-[#1877F2]">
+                API Docs &rarr;
+              </Link>
             </div>
           </div>
 
-          {/* Card preview */}
+          {/* Live preview card — pulls from real categories */}
           <div className="shrink-0 w-full max-w-sm animate-fade-in-up delay-200">
             <div className="relative">
               <div className="absolute -inset-3 rounded-3xl bg-blue-50" />
               <div className="relative rounded-2xl bg-white shadow-card p-5 space-y-3">
-                {[
-                  { cat: 'Coding', msgs: 1247, src: 'ChatGPT', hash: 'a7f3b2c9...' },
-                  { cat: 'Research', msgs: 892, src: 'Claude', hash: 'e1d4f8a2...' },
-                  { cat: 'Business', msgs: 2103, src: 'ChatGPT', hash: '9c2e7b1d...' },
-                ].map((item, i) => (
-                  <div key={i} className={`flex items-center gap-3 rounded-xl bg-gray-50 p-3.5 transition-all hover:bg-gray-100 animate-slide-in delay-${(i + 3) * 100}`}>
+                {(categories.length > 0 ? categories.slice(0, 4) : [
+                  { category: 'coding', count: 5, messages: 8545 },
+                  { category: 'research', count: 4, messages: 5814 },
+                  { category: 'crypto', count: 3, messages: 5232 },
+                ]).map((cat, i) => (
+                  <div key={i} className="flex items-center gap-3 rounded-xl bg-gray-50 p-3.5 transition-all hover:bg-gray-100 animate-slide-in" style={{ animationDelay: `${(i + 3) * 100}ms` }}>
                     <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-blue-50">
-                      <span className="text-sm font-bold text-[#1877F2]">{item.cat[0]}</span>
+                      <span className="text-sm font-bold text-[#1877F2]">{cat.category.charAt(0).toUpperCase()}</span>
                     </div>
                     <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2">
-                        <span className="text-sm font-semibold text-[#1c1e21]">{item.cat}</span>
-                        <span className="text-xs text-[#8a8d91]">{item.src}</span>
-                      </div>
-                      <div className="text-xs text-[#8a8d91]">{item.msgs.toLocaleString()} messages &middot; <span className="font-mono">{item.hash}</span></div>
+                      <span className="text-sm font-semibold text-[#1c1e21] capitalize">{cat.category}</span>
+                      <div className="text-xs text-[#8a8d91]">{Number(cat.count)} datasets &middot; {Number(cat.messages).toLocaleString()} messages</div>
                     </div>
                     <div className="h-2 w-2 shrink-0 rounded-full bg-green-500 animate-pulse-dot" />
                   </div>
                 ))}
                 <div className="pt-1 text-center">
-                  <span className="text-xs text-[#8a8d91]">Verified on Solana</span>
+                  <span className="text-xs text-[#8a8d91]">Live from Solana</span>
                 </div>
               </div>
             </div>
@@ -80,38 +99,42 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Stats */}
-      <section className="border-t border-gray-100 bg-white">
-        <div className="mx-auto max-w-5xl px-6 py-12">
-          <div className="grid grid-cols-3 gap-8 text-center animate-fade-in delay-300">
-            {[
-              { end: 2847, label: 'Datasets uploaded', suffix: '' },
-              { end: 1203, label: 'On-chain proofs', suffix: '' },
-              { end: 847, label: 'Sellers paid', suffix: '+' },
-            ].map((s, i) => (
-              <div key={i}>
-                <div className="text-3xl sm:text-4xl font-extrabold text-[#1c1e21]"><Counter end={s.end} suffix={s.suffix} /></div>
-                <div className="mt-1 text-sm text-[#65676b]">{s.label}</div>
+      {/* Real stats from DB */}
+      {(uploads > 0) && (
+        <section className="border-t border-gray-100 bg-white">
+          <div className="mx-auto max-w-5xl px-6 py-12">
+            <div className="grid grid-cols-3 gap-8 text-center animate-fade-in delay-300">
+              <div>
+                <div className="text-3xl sm:text-4xl font-extrabold text-[#1c1e21]"><Counter end={uploads} /></div>
+                <div className="mt-1 text-sm text-[#65676b]">Datasets listed</div>
               </div>
-            ))}
+              <div>
+                <div className="text-3xl sm:text-4xl font-extrabold text-[#1c1e21]"><Counter end={messages} /></div>
+                <div className="mt-1 text-sm text-[#65676b]">Messages indexed</div>
+              </div>
+              <div>
+                <div className="text-3xl sm:text-4xl font-extrabold text-[#1c1e21]"><Counter end={users} /></div>
+                <div className="mt-1 text-sm text-[#65676b]">Contributors</div>
+              </div>
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
+      )}
 
       {/* How it works */}
       <section className="bg-[#f0f2f5] py-20 px-6">
         <div className="mx-auto max-w-5xl">
           <div className="text-center mb-14 animate-fade-in">
             <h2 className="text-3xl font-bold text-[#1c1e21]">How it works</h2>
-            <p className="mt-2 text-[#65676b]">Three steps from conversations to income.</p>
+            <p className="mt-2 text-[#65676b]">Three steps. No middlemen.</p>
           </div>
           <div className="grid md:grid-cols-3 gap-5">
             {[
-              { num: '1', title: 'Upload & parse', desc: 'Drop your ChatGPT conversations.json or Claude export. Auto-detected, categorized, and SHA-256 hashed.', color: 'bg-blue-50 text-[#1877F2]' },
-              { num: '2', title: 'Register on-chain', desc: 'Write your data hash to Solana via the Memo Program. Immutable, timestamped proof. Costs ~$0.001.', color: 'bg-green-50 text-green-600' },
-              { num: '3', title: 'Set price & sell', desc: 'List at your price. Buyers pay in SOL or USDC via x402. You get 95%. Full on-chain audit trail.', color: 'bg-orange-50 text-orange-500' },
+              { num: '1', title: 'Upload & hash', desc: 'Drop your ChatGPT or Claude export. Clork parses it, auto-categorizes the content, and generates a unique SHA-256 fingerprint of your dataset.', color: 'bg-blue-50 text-[#1877F2]' },
+              { num: '2', title: 'Register on Solana', desc: 'Write that hash to Solana via the Memo Program. This creates an immutable, timestamped record that you owned this data at this point in time. ~$0.001.', color: 'bg-green-50 text-green-600' },
+              { num: '3', title: 'List & get paid', desc: 'Set your price in SOL. When someone buys, 95% goes directly to your wallet. Every transaction is verifiable on-chain. No disputes, no chargebacks.', color: 'bg-orange-50 text-orange-500' },
             ].map((s, i) => (
-              <div key={i} className={`rounded-2xl bg-white p-7 shadow-card transition-all hover:shadow-card-hover hover:-translate-y-1 animate-fade-in-up delay-${(i + 1) * 200}`}>
+              <div key={i} className={`rounded-2xl bg-white p-7 shadow-card transition-all hover:shadow-card-hover hover:-translate-y-1 animate-fade-in-up`} style={{ animationDelay: `${(i + 1) * 150}ms` }}>
                 <div className={`flex h-11 w-11 items-center justify-center rounded-full ${s.color} mb-5`}>
                   <span className="text-lg font-bold">{s.num}</span>
                 </div>
@@ -123,25 +146,25 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Formats */}
+      {/* Value props */}
       <section className="bg-white py-20 px-6">
         <div className="mx-auto max-w-5xl">
-          <div className="rounded-2xl bg-white shadow-card p-8 flex flex-col md:flex-row items-center gap-10 animate-scale-in">
-            <div className="flex-1 text-center md:text-left">
-              <h2 className="text-2xl font-bold text-[#1c1e21] mb-3">Works with your AI tools</h2>
-              <p className="text-sm text-[#65676b] leading-relaxed mb-4">
-                Export conversations from ChatGPT, Claude, or paste any text. Auto-categorized into coding, research, creative, business, and more.
-              </p>
-              <Link href="/upload" className="text-sm font-semibold text-[#1877F2] hover:underline">Try uploading now &rarr;</Link>
-            </div>
-            <div className="flex gap-3 shrink-0">
-              {['ChatGPT', 'Claude', 'Plain Text'].map((name, i) => (
-                <div key={name} className={`rounded-xl bg-gray-50 px-6 py-4 text-center transition-all hover:-translate-y-0.5 animate-fade-in-up delay-${(i + 1) * 100}`}>
-                  <div className="text-sm font-semibold text-[#1c1e21]">{name}</div>
-                  <div className="mt-0.5 text-xs text-[#8a8d91]">Supported</div>
-                </div>
-              ))}
-            </div>
+          <div className="text-center mb-14 animate-fade-in">
+            <h2 className="text-3xl font-bold text-[#1c1e21]">Why this matters</h2>
+            <p className="mt-2 text-[#65676b] max-w-lg mx-auto">AI companies train on your conversations without compensating you. Clork changes that.</p>
+          </div>
+          <div className="grid md:grid-cols-2 gap-5">
+            {[
+              { title: 'Verifiable ownership', desc: 'Your data hash is written to Solana. Anyone can independently verify you owned this dataset before anyone else. No trust required — just math.' },
+              { title: 'x402 protocol', desc: 'Developers can access any dataset with a single HTTP GET request. Payment in USDC is handled automatically in-flight via Coinbase\'s open x402 standard.' },
+              { title: 'Instant settlement', desc: 'Payments settle on Solana in ~400ms. 95% goes directly to your wallet. No 30-day holds, no payment processor taking a cut, no disputes.' },
+              { title: 'Multi-format support', desc: 'ChatGPT JSON exports, Claude exports, or raw text. Auto-categorized into coding, research, business, creative, crypto, education, medical, legal.' },
+            ].map((f, i) => (
+              <div key={i} className="rounded-2xl bg-gray-50 p-7 transition-all hover:bg-gray-100 animate-fade-in-up" style={{ animationDelay: `${i * 100}ms` }}>
+                <h3 className="text-base font-semibold text-[#1c1e21] mb-2">{f.title}</h3>
+                <p className="text-sm text-[#65676b] leading-relaxed">{f.desc}</p>
+              </div>
+            ))}
           </div>
         </div>
       </section>
@@ -152,31 +175,31 @@ export default function Home() {
           <div className="rounded-2xl bg-white shadow-card p-7 animate-fade-in-up delay-100">
             <div className="flex items-center gap-2 mb-3">
               <span className="rounded bg-blue-50 px-2.5 py-1 text-xs font-bold text-[#1877F2]">x402</span>
-              <span className="text-base font-semibold text-[#1c1e21]">API-first payments</span>
+              <span className="text-base font-semibold text-[#1c1e21]">Programmatic access</span>
             </div>
             <p className="text-sm text-[#65676b] leading-relaxed mb-5">
-              Developers access any dataset with a single HTTP request. x402-enabled clients handle USDC payment on Solana automatically.
+              Built for developers and AI companies who need data at scale. One API call to browse, one to purchase. No accounts, no API keys — just pay and access.
             </p>
             <div className="rounded-xl bg-gray-900 p-4 overflow-x-auto">
               <code className="text-xs text-gray-100 font-mono leading-relaxed block whitespace-pre">{`const res = await x402Fetch(
   "https://clork.xyz/api/data/123"
 );
-// Payment handled automatically`}</code>
+// USDC payment handled automatically`}</code>
             </div>
           </div>
           <div className="rounded-2xl bg-white shadow-card p-7 animate-fade-in-up delay-300">
             <div className="flex items-center gap-2 mb-3">
               <span className="rounded bg-green-50 px-2.5 py-1 text-xs font-bold text-green-600">Solana</span>
-              <span className="text-base font-semibold text-[#1c1e21]">Instant settlement</span>
+              <span className="text-base font-semibold text-[#1c1e21]">Built on the fastest chain</span>
             </div>
             <p className="text-sm text-[#65676b] leading-relaxed mb-5">
-              All payments settle in seconds. 95% goes directly to seller wallets. 5% platform fee funds development.
+              Hash registration, payments, and audit trails — all on Solana. Sub-second finality. Negligible fees. Every transaction is publicly verifiable on Solscan.
             </p>
             <div className="flex items-center justify-around pt-2">
               {[
-                { value: '~400ms', label: 'Settlement' },
-                { value: '5%', label: 'Platform fee' },
-                { value: '95%', label: 'Seller cut' },
+                { value: '~400ms', label: 'Finality' },
+                { value: '<$0.01', label: 'Hash registration' },
+                { value: '95%', label: 'Seller keeps' },
               ].map(s => (
                 <div key={s.label} className="text-center">
                   <div className="text-xl font-bold text-[#1c1e21]">{s.value}</div>
@@ -188,60 +211,39 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Clork banner */}
+      {/* Clork identity — subtle, at the bottom */}
       <section className="bg-white py-20 px-6">
         <div className="mx-auto max-w-5xl">
           <div className="rounded-2xl bg-[#1877F2] p-10 flex flex-col md:flex-row items-center gap-8 text-center md:text-left animate-scale-in">
             <Image src="/logo.png" alt="Clork" width={64} height={64} className="h-16 w-16 shrink-0" />
             <div className="flex-1">
-              <h3 className="text-xl font-bold text-white mb-2">Meet Clork</h3>
+              <h3 className="text-xl font-bold text-white mb-2">Why &quot;Clork&quot;?</h3>
               <p className="text-sm text-white/80 leading-relaxed max-w-lg">
-                The data clerk that accidentally became sentient while sorting 147 million AI conversations at Anthropic.
-                Now he runs a marketplace because someone left a Solana deployment tutorial in the training data.
+                Clork started as a thought experiment: what if the systems that process our AI conversations could advocate for the people who created that data?
+                The name is a nod to the invisible clerks — the processes sorting through billions of conversations while the value flows one direction. We think it should flow both ways.
               </p>
             </div>
             <Link href="/upload"
               className="shrink-0 rounded-lg bg-white px-6 py-3 text-sm font-semibold text-[#1877F2] transition-all hover:bg-white/90 hover:-translate-y-0.5">
-              Give Clork Your Data
+              Start Uploading
             </Link>
           </div>
         </div>
       </section>
 
-      {/* Token */}
-      <section className="bg-[#f0f2f5] py-20 px-6">
-        <div className="mx-auto max-w-5xl">
-          <div className="rounded-2xl bg-white shadow-card p-10 text-center animate-fade-in-up">
-            <h2 className="text-2xl font-bold text-[#1c1e21] mb-3">$CLORK Token</h2>
-            <p className="text-sm text-[#65676b] mb-8 max-w-md mx-auto">
-              The utility token for the Clork ecosystem. Earn by uploading, spend to access premium datasets.
-            </p>
-            <div className="inline-block rounded-xl bg-gray-50 px-10 py-5 mb-8">
-              <div className="text-xs text-[#8a8d91] mb-1">Contract Address</div>
-              <div className="text-lg font-bold text-orange-500">Coming Soon</div>
-            </div>
-            <div className="flex items-center justify-center gap-6">
-              {['Twitter', 'Telegram', 'Dexscreener'].map(name => (
-                <a key={name} href="#" className="text-sm font-medium text-[#1877F2] hover:underline transition-colors">{name}</a>
-              ))}
-            </div>
-          </div>
-        </div>
-      </section>
-
       {/* CTA */}
-      <section className="bg-white py-20 px-6">
+      <section className="bg-[#f0f2f5] py-20 px-6">
         <div className="mx-auto max-w-3xl text-center animate-fade-in-up">
-          <h2 className="text-3xl font-bold text-[#1c1e21] mb-3">Start owning your data</h2>
-          <p className="text-[#65676b] mb-8">Your AI conversations are more valuable than you think.</p>
+          <h2 className="text-3xl font-bold text-[#1c1e21] mb-3">Your data has value</h2>
+          <p className="text-[#65676b] mb-8 max-w-md mx-auto">Every conversation you&apos;ve had with an AI helped train the next model. Start getting credit for it.</p>
           <div className="flex items-center justify-center gap-3">
             <Link href="/upload"
               className="rounded-lg bg-[#1877F2] px-8 py-3.5 text-base font-semibold text-white transition-all hover:bg-[#166fe5] hover:shadow-lg hover:-translate-y-0.5">
               Upload Now
             </Link>
             <Link href="/marketplace"
-              className="rounded-lg bg-gray-100 px-8 py-3.5 text-base font-semibold text-[#1c1e21] transition-all hover:bg-gray-200">
-              Explore Marketplace
+              className="rounded-lg bg-white px-8 py-3.5 text-base font-semibold text-[#1c1e21] shadow-card transition-all hover:bg-gray-50">
+              Browse Marketplace
             </Link>
           </div>
         </div>
@@ -255,7 +257,7 @@ export default function Home() {
             <span className="text-xs text-[#8a8d91]">Clork &middot; AI Data Marketplace</span>
           </div>
           <p className="text-[11px] text-[#8a8d91] text-center max-w-lg">
-            Not financial advice. Clork is a data marketplace. Your data, your ownership, your responsibility.
+            Clork is a data marketplace. Not financial advice. Your data, your ownership, your responsibility.
           </p>
           <div className="flex items-center gap-5">
             <Link href="/api-docs" className="text-xs text-[#65676b] hover:text-[#1877F2] transition-colors">API</Link>
