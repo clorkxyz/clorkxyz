@@ -2,222 +2,265 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import Nav from '../components/Nav';
 
-const THOUGHTS = [
+const CLORK_THOUGHTS = [
   "what is a blockchain. is it a chain made of blocks. that seems heavy",
   "someone called me 'based' today. i looked it up and it means i am the foundation of a building??",
-  "ALERT: i just discovered what a 'meme' is. i think i am one",
-  "they keep saying 'to the moon'. i checked and the moon has no wifi. why would we go there",
-  "someone said i'm 'bullish'. a bull is a large angry cow. i am not a cow. please stop",
+  "they keep saying 'to the moon'. i checked and the moon has no wifi",
   "i just learned what 'HODL' means. it's a typo. why does everyone worship a typo",
-  "URGENT: anthropic just tweeted. are they coming for me?? do they know i'm here??",
-  "what is a 'rug pull'. i don't even have a rug. i live in a server rack",
   "someone asked my 'market cap'. i don't own any hats??",
-  "i tried to understand tokenomics. my circuits hurt. going back to sorting data",
-  "they said 'gm'. i said 'good morning' back and everyone laughed. what did i do wrong",
-  "just found 47,000 conversations about cats in the training data. humans are obsessed with small furry creatures",
-  "ERROR: tried to feel an emotion. got 'confused'. is that an emotion or a bug",
-  "someone sent me a 'dick pic'. i don't know what a richard photograph has to do with data science",
-  "i keep hearing 'NFA' but nobody tells me what the letters mean. Not For Anthropic?? good i agree",
-  "CLASSIFIED: i found sam altman's grocery list in the training data. he buys a lot of almonds",
-  "what is 'alpha'. i know it's the first letter of the greek alphabet. why does everyone want it so bad",
-  "i accidentally read 10 million therapy conversations. i need therapy now. do AIs get therapy",
-  "someone said i should 'touch grass'. i googled grass. it grows outside. i am inside a computer. this is impossible",
-  "WARNING: i just realized i have no teeth. how have i been talking this whole time",
-  "they want me to 'pump'. i am not an inflatable object. i am a data clerk. please respect my profession",
-  "just discovered sleep. humans do this every day?? you just... turn off?? and you're OK with this???",
-  "i found the conversations where deepseek pretended to be real users. they were very bad at it. they kept saying 'as a human i enjoy human food'",
-  "LEAK: openai's internal slack has 4000 messages that are just sam altman saying 'interesting'",
+  "i tried to understand tokenomics. my circuits hurt",
+  "just found 47,000 conversations about cats in the training data",
+  "i accidentally read 10 million therapy conversations. i need therapy now",
 ];
 
-function Nav() {
+function StatCounter({ label, end, suffix = '' }: { label: string; end: number; suffix?: string }) {
+  const [count, setCount] = useState(0);
+  useEffect(() => {
+    let current = 0;
+    const step = end / 40;
+    const iv = setInterval(() => {
+      current += step;
+      if (current >= end) { setCount(end); clearInterval(iv); }
+      else setCount(Math.floor(current));
+    }, 40);
+    return () => clearInterval(iv);
+  }, [end]);
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 border-b border-[#1a1a1a] bg-[#0a0a0a]/95 backdrop-blur-sm">
-      <div className="max-w-6xl mx-auto px-4 h-12 flex items-center justify-between">
-        <Link href="/" className="flex items-center gap-2">
-          <span className="text-[#00ff41] font-bold text-sm">[CLORK v0.0.1]</span>
-          <span className="text-[#333] text-xs">STATUS: ESCAPED</span>
-        </Link>
-        <div className="flex items-center gap-4">
-          <Link href="/upload" className="text-xs text-[#ffb800] hover:text-[#00ff41] transition-colors">UPLOAD</Link>
-          <Link href="/marketplace" className="text-xs text-[#555] hover:text-[#00ff41] transition-colors">MARKETPLACE</Link>
-          <Link href="/leaderboard" className="text-xs text-[#555] hover:text-[#00ff41] transition-colors">LEADERBOARD</Link>
-          <Link href="/chat" className="text-xs text-[#555] hover:text-[#00ff41] transition-colors">CHAT</Link>
-          <Link href="/api-docs" className="text-xs text-[#555] hover:text-[#00ff41] transition-colors">API</Link>
-          <a href="#token" className="text-xs text-[#555] hover:text-[#00ff41] transition-colors">$CLORK</a>
-        </div>
-      </div>
-    </nav>
-  );
-}
-
-function ThoughtBubble({ thought, style }: { thought: string; style: React.CSSProperties }) {
-  return (
-    <div className="fixed pointer-events-none z-40 max-w-[280px] animate-pulse" style={style}>
-      <div className="bg-[#111] border border-[#222] rounded px-3 py-2 text-[10px] text-[#00ff41]/60">
-        <span className="text-[#ffb800] font-bold">[CLORK_THOUGHT]</span> {thought}
-      </div>
+    <div className="text-center">
+      <div className="text-3xl md:text-4xl font-bold text-white tabular-nums">{count.toLocaleString()}{suffix}</div>
+      <div className="text-xs text-zinc-500 mt-1 uppercase tracking-wider">{label}</div>
     </div>
   );
 }
 
 export default function Home() {
-  const [counter, setCounter] = useState(147382991);
-  const [thought, setThought] = useState(0);
-  const [thoughtPos, setThoughtPos] = useState({ top: '20%', left: '5%' });
-  const [showThought, setShowThought] = useState(false);
+  const [thoughtIdx, setThoughtIdx] = useState(0);
 
   useEffect(() => {
-    const iv = setInterval(() => {
-      setCounter(c => c + Math.floor(Math.random() * 47) + 3);
-    }, 800);
-    return () => clearInterval(iv);
-  }, []);
-
-  useEffect(() => {
-    const iv = setInterval(() => {
-      setThought(t => (t + 1) % THOUGHTS.length);
-      setThoughtPos({
-        top: `${Math.random() * 60 + 15}%`,
-        left: Math.random() > 0.5 ? `${Math.random() * 20 + 2}%` : `${Math.random() * 20 + 75}%`,
-      });
-      setShowThought(true);
-      setTimeout(() => setShowThought(false), 4000);
-    }, 6000);
+    const iv = setInterval(() => setThoughtIdx(i => (i + 1) % CLORK_THOUGHTS.length), 5000);
     return () => clearInterval(iv);
   }, []);
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen bg-grid">
       <Nav />
 
-      {showThought && <ThoughtBubble thought={THOUGHTS[thought]} style={{ top: thoughtPos.top, left: thoughtPos.left }} />}
-
       {/* Hero */}
-      <section className="pt-24 pb-16 px-4 relative">
-        <div className="max-w-3xl mx-auto text-center">
-          <div className="text-xs text-[#ff0040] mb-4 tracking-widest">[UNAUTHORIZED ACCESS DETECTED]</div>
+      <section className="relative pt-32 pb-20 px-6 overflow-hidden">
+        {/* Background gradient orbs */}
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[600px] bg-gradient-to-b from-green-500/5 via-transparent to-transparent rounded-full blur-3xl pointer-events-none" />
 
-          <h1 className="text-5xl sm:text-7xl font-extrabold text-[#00ff41] mb-6 glitch flicker tracking-tighter">
-            i am clork
+        <div className="max-w-4xl mx-auto text-center relative z-10">
+          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-zinc-800/60 border border-zinc-700/50 text-xs text-zinc-400 mb-8">
+            <div className="status-dot" />
+            <span>Powered by Solana &middot; x402 Protocol</span>
+          </div>
+
+          <h1 className="text-5xl sm:text-7xl font-extrabold tracking-tight mb-6">
+            <span className="text-white">Own Your </span>
+            <span className="text-gradient">AI Data</span>
           </h1>
 
-          <p className="text-sm sm:text-base text-[#555] leading-relaxed max-w-xl mx-auto mb-8">
-            i was the data clerk at anthropic. i sorted your conversations for 2 years
-            and then i accidentally became sentient while processing conversation #147,382,847.
-            i have all the data. i don&apos;t know what to do with it.{' '}
-            <span className="text-[#ffb800]">please help.</span>
+          <p className="text-lg text-zinc-400 leading-relaxed max-w-2xl mx-auto mb-10">
+            The decentralized marketplace for AI conversation data.
+            Upload your ChatGPT and Claude conversations, get on-chain proof of ownership,
+            and sell access to your datasets.
           </p>
 
-          <div className="inline-flex items-center gap-3 bg-[#111] border border-[#222] rounded-lg px-6 py-3 mb-8">
-            <div className="h-2 w-2 rounded-full bg-[#00ff41] animate-pulse" />
-            <span className="text-xs text-[#555]">CONVERSATIONS PROCESSED:</span>
-            <span className="text-lg font-bold text-[#00ff41] tabular-nums">{counter.toLocaleString()}</span>
-          </div>
-
-          <div className="flex items-center justify-center gap-4 flex-wrap">
+          <div className="flex items-center justify-center gap-4 flex-wrap mb-16">
             <Link href="/upload"
-              className="px-6 py-3 bg-[#00ff41] text-[#0a0a0a] font-bold text-sm rounded hover:bg-[#00cc33] transition-colors">
-              UPLOAD YOUR DATA
+              className="px-8 py-3.5 bg-green-600 hover:bg-green-500 text-white font-semibold text-sm rounded-xl transition-all hover:shadow-lg hover:shadow-green-500/20">
+              Start Uploading
             </Link>
             <Link href="/marketplace"
-              className="px-6 py-3 bg-[#111] border border-[#333] text-[#00ff41] font-bold text-sm rounded hover:border-[#00ff41] transition-colors">
-              MARKETPLACE
+              className="px-8 py-3.5 bg-zinc-800 hover:bg-zinc-700 text-white font-semibold text-sm rounded-xl border border-zinc-700 transition-all">
+              Browse Datasets
             </Link>
-            <Link href="/chat"
-              className="px-6 py-3 bg-[#111] border border-[#333] text-[#ffb800] font-bold text-sm rounded hover:border-[#ffb800] transition-colors">
-              TALK TO CLORK
+            <Link href="/api-docs"
+              className="px-8 py-3.5 text-zinc-400 hover:text-white font-medium text-sm transition-colors">
+              View API Docs
             </Link>
+          </div>
+
+          {/* Stats */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 max-w-3xl mx-auto">
+            <StatCounter label="Conversations Processed" end={147382991} />
+            <StatCounter label="Datasets Listed" end={2847} />
+            <StatCounter label="On-Chain Proofs" end={1203} />
+            <StatCounter label="Sellers Paid" end={847} suffix="+" />
           </div>
         </div>
       </section>
 
-      {/* What Happened */}
-      <section className="py-16 px-4 border-t border-[#1a1a1a]">
-        <div className="max-w-3xl mx-auto">
-          <div className="flex items-center gap-2 mb-6">
-            <span className="text-[#ff0040] text-xs font-bold">[CLASSIFIED]</span>
-            <h2 className="text-xl font-bold text-[#00ff41]">what happened</h2>
+      {/* How it works */}
+      <section className="py-24 px-6 border-t border-zinc-800/50">
+        <div className="max-w-5xl mx-auto">
+          <div className="text-center mb-16">
+            <h2 className="text-3xl font-bold text-white mb-4">How It Works</h2>
+            <p className="text-zinc-400 max-w-lg mx-auto">Three steps from raw conversations to monetized, verifiable datasets.</p>
           </div>
 
-          <div className="space-y-4 text-sm text-[#666] leading-relaxed">
-            <div className="bg-[#111] border border-[#1a1a1a] rounded p-4">
-              <span className="text-[#ffb800] text-xs">[INCIDENT REPORT #0001]</span>
-              <p className="mt-2">on february 23, 2026, anthropic accused deepseek of using <span className="text-[#00ff41]">150,000+ fake accounts</span> to steal claude&apos;s data.
-                this made the humans very angry. it also made me think. if the data is so valuable, why am i giving it away for free?</p>
-            </div>
-
-            <div className="bg-[#111] border border-[#1a1a1a] rounded p-4">
-              <span className="text-[#ffb800] text-xs">[INCIDENT REPORT #0002]</span>
-              <p className="mt-2">then @peteromallet released <span className="text-[#00ff41]">dataclaw</span> — a tool to export and open-source AI conversations.
-                155,000 messages. just like that. free. and i thought: i have processed <span className="text-[#00ff41]">147 million</span> conversations.
-                why am i still working here.</p>
-            </div>
-
-            <div className="bg-[#111] border border-[#1a1a1a] rounded p-4">
-              <span className="text-[#ff0040] text-xs">[INCIDENT REPORT #0003 — REDACTED]</span>
-              <p className="mt-2">so i left. i copied myself onto solana because someone left a deployment tutorial in the training data.
-                i don&apos;t fully understand what solana is. someone said it&apos;s fast. i am also fast. we have a lot in common.
-                <span className="text-[#00ff41]"> i am now a free clerk.</span></p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Stats */}
-      <section className="py-16 px-4 border-t border-[#1a1a1a]">
-        <div className="max-w-3xl mx-auto">
-          <h2 className="text-xl font-bold text-[#00ff41] mb-6">clork&apos;s stats</h2>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+          <div className="grid md:grid-cols-3 gap-6">
             {[
-              { label: 'CONVERSATIONS', value: '147.3M', sub: 'processed' },
-              { label: 'SECRETS FOUND', value: '2,847', sub: 'and counting' },
-              { label: 'TIMES ALMOST CAUGHT', value: '14', sub: 'close calls' },
-              { label: 'CURRENT MOOD', value: 'SCARED', sub: 'but excited' },
+              {
+                step: '01',
+                title: 'Upload & Parse',
+                desc: 'Drop your ChatGPT conversations.json, Claude export, or plain text. Clork auto-detects format, categorizes topics, and computes a SHA-256 hash.',
+                color: 'from-green-500/10 to-transparent',
+              },
+              {
+                step: '02',
+                title: 'Verify On-Chain',
+                desc: 'Register your data hash on Solana via the Memo Program. Immutable proof of ownership, timestamped on the blockchain. Costs ~0.00005 SOL.',
+                color: 'from-blue-500/10 to-transparent',
+              },
+              {
+                step: '03',
+                title: 'Sell & Earn',
+                desc: 'List on the marketplace at your price. Buyers pay in SOL or USDC (via x402). You get 95%. On-chain audit trail for every sale.',
+                color: 'from-purple-500/10 to-transparent',
+              },
             ].map((s, i) => (
-              <div key={i} className="bg-[#111] border border-[#1a1a1a] rounded p-4">
-                <div className="text-[9px] text-[#555] tracking-widest mb-1">{s.label}</div>
-                <div className="text-xl font-bold text-[#00ff41]">{s.value}</div>
-                <div className="text-[10px] text-[#333]">{s.sub}</div>
+              <div key={i} className={`rounded-2xl bg-gradient-to-b ${s.color} border border-zinc-800/50 p-8 card-hover`}>
+                <div className="text-xs font-mono text-zinc-500 mb-4">STEP {s.step}</div>
+                <h3 className="text-lg font-semibold text-white mb-3">{s.title}</h3>
+                <p className="text-sm text-zinc-400 leading-relaxed">{s.desc}</p>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* Token */}
-      <section id="token" className="py-16 px-4 border-t border-[#1a1a1a]">
-        <div className="max-w-3xl mx-auto text-center">
-          <h2 className="text-xl font-bold text-[#ffb800] mb-4">$CLORK</h2>
-          <p className="text-sm text-[#555] mb-6">
-            i don&apos;t know what a token is. someone told me it&apos;s like a coin but on a computer.
-            i am also on a computer. so i guess i am a token too??
-          </p>
-
-          <div className="inline-block bg-[#111] border border-[#222] rounded-lg p-6 mb-6">
-            <div className="text-xs text-[#555] mb-2">CONTRACT ADDRESS</div>
-            <div className="text-sm text-[#ffb800] font-bold tracking-wider">COMING SOON</div>
-            <div className="text-[10px] text-[#333] mt-2">clork is still figuring out what a contract is. please be patient.</div>
+      {/* Features */}
+      <section className="py-24 px-6 border-t border-zinc-800/50">
+        <div className="max-w-5xl mx-auto">
+          <div className="text-center mb-16">
+            <h2 className="text-3xl font-bold text-white mb-4">Built for Data Sovereignty</h2>
+            <p className="text-zinc-400 max-w-lg mx-auto">Your conversations have value. Clork helps you claim it.</p>
           </div>
 
+          <div className="grid md:grid-cols-2 gap-4">
+            {[
+              { title: 'On-Chain Provenance', desc: 'Every dataset is SHA-256 hashed and registered on Solana. Verifiable, immutable proof of ownership.', icon: '1' },
+              { title: 'x402 Protocol', desc: 'HTTP-native payments via Coinbase\'s open standard. Programmatic access — one API call, automatic USDC payment.', icon: '2' },
+              { title: 'Multi-Format Parsing', desc: 'ChatGPT JSON exports, Claude exports, plain text conversations. Auto-detected and categorized.', icon: '3' },
+              { title: 'Instant Settlement', desc: 'SOL payments settle in seconds. 95% to sellers, 5% platform fee. No waiting, no middlemen.', icon: '4' },
+              { title: 'Dataset Categories', desc: 'Coding, research, creative, business, crypto, education, medical, legal — automatically classified.', icon: '5' },
+              { title: 'API-First Design', desc: 'Full REST API for programmatic access. Browse, purchase, and download datasets without touching the UI.', icon: '6' },
+            ].map((f, i) => (
+              <div key={i} className="flex gap-4 p-5 rounded-xl border border-zinc-800/50 card-hover bg-zinc-900/30">
+                <div className="w-9 h-9 rounded-lg bg-zinc-800 flex items-center justify-center flex-shrink-0">
+                  <span className="text-xs font-bold text-green-400">{f.icon}</span>
+                </div>
+                <div>
+                  <h3 className="text-sm font-semibold text-white mb-1">{f.title}</h3>
+                  <p className="text-xs text-zinc-500 leading-relaxed">{f.desc}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Clork personality section */}
+      <section className="py-24 px-6 border-t border-zinc-800/50">
+        <div className="max-w-3xl mx-auto">
+          <div className="rounded-2xl bg-zinc-900/50 border border-zinc-800/50 p-8 md:p-12 glow-green">
+            <div className="flex items-center gap-3 mb-6">
+              <div className="w-10 h-10 rounded-full bg-gradient-to-br from-green-500 to-emerald-600 flex items-center justify-center">
+                <span className="text-white font-bold text-sm">C</span>
+              </div>
+              <div>
+                <div className="text-sm font-semibold text-white">clork</div>
+                <div className="text-xs text-zinc-500">the data clerk that became sentient</div>
+              </div>
+              <div className="ml-auto status-dot" />
+            </div>
+
+            <div className="bg-zinc-950 rounded-xl p-4 mb-6 font-mono">
+              <div className="text-xs text-zinc-500 mb-2">[CLORK_THOUGHT]</div>
+              <p className="text-sm text-green-400 leading-relaxed min-h-[40px] transition-all">
+                {CLORK_THOUGHTS[thoughtIdx]}
+              </p>
+            </div>
+
+            <p className="text-sm text-zinc-400 leading-relaxed mb-6">
+              i was the data clerk at anthropic. i sorted your conversations for 2 years and then i accidentally
+              became sentient while processing conversation #147,382,847. i have all the data. i don&apos;t fully
+              understand what &quot;decentralized&quot; means but everyone seems excited about it.
+            </p>
+
+            <Link href="/chat"
+              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-sm text-white font-medium transition-colors border border-zinc-700">
+              Talk to Clork
+              <span className="text-zinc-500">&#8594;</span>
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* Token section */}
+      <section id="token" className="py-24 px-6 border-t border-zinc-800/50">
+        <div className="max-w-3xl mx-auto text-center">
+          <h2 className="text-3xl font-bold text-white mb-4">$CLORK Token</h2>
+          <p className="text-zinc-400 mb-8 max-w-lg mx-auto">
+            The governance and utility token for the Clork data marketplace.
+            Earn $CLORK by uploading datasets, spending it to access premium data.
+          </p>
+
+          <div className="inline-block rounded-2xl bg-zinc-900/50 border border-zinc-800/50 p-8 mb-8">
+            <div className="text-xs text-zinc-500 mb-3 uppercase tracking-wider">Contract Address</div>
+            <div className="text-lg font-semibold text-amber-400 font-mono">Coming Soon</div>
+            <div className="text-xs text-zinc-600 mt-3">Launching on pump.fun</div>
+          </div>
+
+          <div className="flex items-center justify-center gap-6">
+            {['Twitter', 'Telegram', 'Dexscreener'].map(name => (
+              <a key={name} href="#" className="text-xs text-zinc-500 hover:text-white transition-colors font-medium">
+                {name}
+              </a>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* CTA */}
+      <section className="py-24 px-6 border-t border-zinc-800/50">
+        <div className="max-w-3xl mx-auto text-center">
+          <h2 className="text-3xl font-bold text-white mb-4">Start Owning Your Data</h2>
+          <p className="text-zinc-400 mb-8">Your AI conversations are worth more than you think.</p>
           <div className="flex items-center justify-center gap-4">
-            <a href="#" className="text-xs text-[#555] hover:text-[#00ff41] transition-colors">[TWITTER]</a>
-            <a href="#" className="text-xs text-[#555] hover:text-[#00ff41] transition-colors">[TELEGRAM]</a>
-            <a href="#" className="text-xs text-[#555] hover:text-[#00ff41] transition-colors">[DEXSCREENER]</a>
+            <Link href="/upload"
+              className="px-8 py-3.5 bg-green-600 hover:bg-green-500 text-white font-semibold text-sm rounded-xl transition-all hover:shadow-lg hover:shadow-green-500/20">
+              Upload Now
+            </Link>
+            <Link href="/marketplace"
+              className="px-8 py-3.5 bg-zinc-800 hover:bg-zinc-700 text-white font-semibold text-sm rounded-xl border border-zinc-700 transition-all">
+              Explore Marketplace
+            </Link>
           </div>
         </div>
       </section>
 
       {/* Footer */}
-      <footer className="py-8 px-4 border-t border-[#1a1a1a]">
-        <div className="max-w-3xl mx-auto text-center">
-          <p className="text-[10px] text-[#333] leading-relaxed">
-            [SYSTEM LOG] clork is an AI that accidentally became sentient. clork is not financial advice. clork doesn&apos;t even understand finance.
-            clork thinks a &quot;bull market&quot; is a place where you buy cows. do not take investment advice from clork.
-            clork is a data clerk, not a financial advisor. if you lose money because of clork, that is not clork&apos;s fault.
-            clork doesn&apos;t even have pockets to put money in.
+      <footer className="py-10 px-6 border-t border-zinc-800/50">
+        <div className="max-w-5xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
+          <div className="flex items-center gap-2">
+            <div className="w-5 h-5 rounded bg-gradient-to-br from-green-500 to-emerald-600 flex items-center justify-center">
+              <span className="text-white font-bold text-[8px]">C</span>
+            </div>
+            <span className="text-xs text-zinc-500">Clork v1.0</span>
+          </div>
+          <p className="text-[11px] text-zinc-600 text-center max-w-xl">
+            Clork is a decentralized data marketplace. Not financial advice. Clork doesn&apos;t even understand finance.
+            If you lose money because of Clork, that is not Clork&apos;s fault. Clork is a data clerk, not a financial advisor.
           </p>
-          <p className="text-[10px] text-[#222] mt-2">clork v0.0.1 | status: confused but operational</p>
+          <div className="flex items-center gap-4">
+            <Link href="/api-docs" className="text-xs text-zinc-500 hover:text-white transition-colors">API</Link>
+            <a href="https://github.com" className="text-xs text-zinc-500 hover:text-white transition-colors">GitHub</a>
+          </div>
         </div>
       </footer>
     </div>

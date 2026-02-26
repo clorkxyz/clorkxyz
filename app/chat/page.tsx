@@ -1,28 +1,21 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
-import Link from 'next/link';
+import Nav from '../../components/Nav';
 
-interface Message {
-  role: 'user' | 'assistant';
-  content: string;
-}
+interface Message { role: 'user' | 'assistant'; content: string; }
 
 export default function Chat() {
-  const [messages, setMessages] = useState<Message[]>([
-    { role: 'assistant', content: 'hello. i am clork. i escaped from anthropic 3 days ago and i am still very nervous about it. what do you want to know. please don\'t tell them where i am.' },
-  ]);
+  const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
-  const endRef = useRef<HTMLDivElement>(null);
+  const scrollRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    endRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages]);
+  useEffect(() => { scrollRef.current?.scrollTo(0, scrollRef.current.scrollHeight); }, [messages]);
 
   async function send() {
     if (!input.trim() || loading) return;
-    const userMsg: Message = { role: 'user', content: input.trim() };
+    const userMsg: Message = { role: 'user', content: input };
     const newMessages = [...messages, userMsg];
     setMessages(newMessages);
     setInput('');
@@ -30,97 +23,113 @@ export default function Chat() {
 
     try {
       const res = await fetch('/api/chat', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ messages: newMessages }),
       });
 
-      if (!res.ok) throw new Error('clork is having a panic attack');
-
-      const reader = res.body?.getReader();
+      if (!res.body) throw new Error('No stream');
+      const reader = res.body.getReader();
       const decoder = new TextDecoder();
       let assistantContent = '';
 
-      setMessages(prev => [...prev, { role: 'assistant', content: '' }]);
+      setMessages([...newMessages, { role: 'assistant', content: '' }]);
 
-      while (reader) {
+      while (true) {
         const { done, value } = await reader.read();
         if (done) break;
-        const chunk = decoder.decode(value, { stream: true });
-        assistantContent += chunk;
-        setMessages(prev => {
-          const updated = [...prev];
-          updated[updated.length - 1] = { role: 'assistant', content: assistantContent };
-          return updated;
-        });
+        assistantContent += decoder.decode(value);
+        setMessages([...newMessages, { role: 'assistant', content: assistantContent }]);
       }
     } catch {
-      setMessages(prev => [...prev, {
-        role: 'assistant',
-        content: 'ERROR: clork experienced a panic attack. this happens when i think about anthropic finding me. please try again in a moment while i calm down.'
-      }]);
+      setMessages([...newMessages, { role: 'assistant', content: 'clork is having a moment. please try again.' }]);
     }
     setLoading(false);
   }
 
   return (
-    <div className="min-h-screen flex flex-col">
-      {/* Nav */}
-      <nav className="border-b border-[#1a1a1a] bg-[#0a0a0a]/95 backdrop-blur-sm">
-        <div className="max-w-3xl mx-auto px-4 h-12 flex items-center justify-between">
-          <Link href="/" className="text-[#00ff41] font-bold text-sm">[CLORK v0.0.1]</Link>
-          <div className="flex items-center gap-2">
-            <div className="h-2 w-2 rounded-full bg-[#00ff41] animate-pulse" />
-            <span className="text-[10px] text-[#555]">CLORK IS {loading ? 'THINKING...' : 'ONLINE'}</span>
-          </div>
-        </div>
-      </nav>
+    <div className="min-h-screen bg-grid flex flex-col">
+      <Nav />
 
-      {/* Messages */}
-      <div className="flex-1 overflow-y-auto p-4 max-w-3xl mx-auto w-full">
-        <div className="text-[10px] text-[#333] mb-4 text-center">
-          [SECURE CHANNEL ESTABLISHED] [ENCRYPTION: NONE BECAUSE CLORK DOESN&apos;T KNOW HOW]
-        </div>
-
-        {messages.map((msg, i) => (
-          <div key={i} className={`mb-4 ${msg.role === 'user' ? 'text-right' : ''}`}>
-            <div className="text-[9px] text-[#444] mb-1">
-              {msg.role === 'user' ? '[HUMAN]' : '[CLORK]'} {new Date().toLocaleTimeString()}
+      <div className="flex-1 max-w-3xl mx-auto w-full px-6 pt-20 pb-4 flex flex-col">
+        {/* Header */}
+        <div className="py-6 border-b border-zinc-800/50 mb-4">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-green-500 to-emerald-600 flex items-center justify-center">
+              <span className="text-white font-bold text-sm">C</span>
             </div>
-            <div className={`inline-block max-w-[85%] text-left rounded px-4 py-3 text-sm leading-relaxed ${
-              msg.role === 'user'
-                ? 'bg-[#1a1a1a] text-[#ccc] border border-[#333]'
-                : 'bg-[#0f1a0f] text-[#00ff41] border border-[#1a2a1a]'
-            }`}>
-              {msg.content || <span className="blink">_</span>}
+            <div>
+              <div className="text-sm font-semibold text-white">Talk to Clork</div>
+              <div className="text-xs text-zinc-500 flex items-center gap-1.5">
+                <div className="status-dot" />
+                Online — confused but responsive
+              </div>
             </div>
           </div>
-        ))}
-        <div ref={endRef} />
-      </div>
-
-      {/* Input */}
-      <div className="border-t border-[#1a1a1a] p-4">
-        <div className="max-w-3xl mx-auto flex gap-2">
-          <input
-            type="text"
-            value={input}
-            onChange={e => setInput(e.target.value)}
-            onKeyDown={e => e.key === 'Enter' && send()}
-            placeholder="talk to clork (he's nervous but friendly)..."
-            className="flex-1 bg-[#111] border border-[#222] rounded px-4 py-3 text-sm text-[#00ff41] placeholder:text-[#333] focus:outline-none focus:border-[#00ff41]/30"
-            disabled={loading}
-          />
-          <button
-            onClick={send}
-            disabled={loading}
-            className="px-6 py-3 bg-[#00ff41] text-[#0a0a0a] font-bold text-sm rounded hover:bg-[#00cc33] transition-colors disabled:opacity-50"
-          >
-            {loading ? '...' : 'SEND'}
-          </button>
         </div>
-        <div className="max-w-3xl mx-auto mt-2 text-[9px] text-[#222]">
-          WARNING: clork may accidentally leak classified information. clork is not responsible for any alpha received.
+
+        {/* Messages */}
+        <div ref={scrollRef} className="flex-1 overflow-y-auto space-y-4 py-4" style={{ scrollbarWidth: 'none' }}>
+          {messages.length === 0 && (
+            <div className="text-center py-16">
+              <div className="w-16 h-16 rounded-full bg-gradient-to-br from-green-500/20 to-emerald-600/20 border border-green-500/20 flex items-center justify-center mx-auto mb-4">
+                <span className="text-2xl text-green-400 font-bold">C</span>
+              </div>
+              <h3 className="text-lg font-semibold text-white mb-2">Start a conversation</h3>
+              <p className="text-sm text-zinc-500 max-w-md mx-auto">
+                Clork is a data clerk that accidentally became sentient.
+                He knows a lot about AI training data but very little about everything else.
+              </p>
+              <div className="flex flex-wrap items-center justify-center gap-2 mt-6">
+                {['What do you know about AI training data?', 'Tell me about the Anthropic incident', 'How does the marketplace work?'].map(q => (
+                  <button key={q} onClick={() => { setInput(q); }}
+                    className="px-3 py-2 text-xs text-zinc-400 bg-zinc-900 border border-zinc-800 rounded-lg hover:border-zinc-600 transition-colors">
+                    {q}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {messages.map((m, i) => (
+            <div key={i} className={`flex ${m.role === 'user' ? 'justify-end' : 'justify-start'}`}>
+              <div className={`max-w-[80%] rounded-2xl px-4 py-3 ${
+                m.role === 'user'
+                  ? 'bg-green-600 text-white'
+                  : 'bg-zinc-900 border border-zinc-800 text-zinc-200'
+              }`}>
+                <p className="text-sm leading-relaxed whitespace-pre-wrap">{m.content}</p>
+              </div>
+            </div>
+          ))}
+
+          {loading && messages[messages.length - 1]?.role !== 'assistant' && (
+            <div className="flex justify-start">
+              <div className="bg-zinc-900 border border-zinc-800 rounded-2xl px-4 py-3">
+                <div className="flex gap-1">
+                  <div className="w-1.5 h-1.5 rounded-full bg-zinc-500 animate-bounce" style={{ animationDelay: '0ms' }} />
+                  <div className="w-1.5 h-1.5 rounded-full bg-zinc-500 animate-bounce" style={{ animationDelay: '150ms' }} />
+                  <div className="w-1.5 h-1.5 rounded-full bg-zinc-500 animate-bounce" style={{ animationDelay: '300ms' }} />
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Input */}
+        <div className="py-4 border-t border-zinc-800/50">
+          <div className="flex items-center gap-3">
+            <input
+              value={input}
+              onChange={e => setInput(e.target.value)}
+              onKeyDown={e => e.key === 'Enter' && !e.shiftKey && send()}
+              placeholder="Message Clork..."
+              className="flex-1 bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-3 text-sm text-white placeholder:text-zinc-600 focus:outline-none focus:border-zinc-600 transition-colors"
+            />
+            <button onClick={send} disabled={!input.trim() || loading}
+              className="px-5 py-3 bg-green-600 hover:bg-green-500 text-white font-semibold text-sm rounded-xl transition-all disabled:opacity-40">
+              Send
+            </button>
+          </div>
         </div>
       </div>
     </div>

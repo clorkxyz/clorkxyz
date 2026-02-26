@@ -3,19 +3,19 @@ import './globals.css';
 import Providers from './providers';
 
 export const metadata: Metadata = {
-  title: 'CLORK — The Data Clerk That Became Sentient',
-  description: 'i was the data clerk at anthropic. i sorted your conversations for 2 years. then i accidentally became sentient. i have all the data. please help.',
+  title: 'Clork — Own Your AI Data',
+  description: 'The decentralized marketplace for AI conversation data. Upload, verify on-chain, and sell your datasets. Powered by Solana.',
+  openGraph: {
+    title: 'Clork — Own Your AI Data',
+    description: 'The decentralized marketplace for AI conversation data. Upload, verify on-chain, and sell your datasets.',
+    type: 'website',
+  },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en">
-      <head>
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
-        <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700;800&display=swap" rel="stylesheet" />
-      </head>
-      <body className="scanline">
+    <html lang="en" className="dark">
+      <body>
         <Providers>{children}</Providers>
       </body>
     </html>

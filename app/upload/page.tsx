@@ -2,6 +2,7 @@
 
 import { useState, useRef } from 'react';
 import Link from 'next/link';
+import Nav from '../../components/Nav';
 import { useWallet } from '../providers';
 import { Transaction } from '@solana/web3.js';
 
@@ -29,31 +30,34 @@ export default function Upload() {
   const [error, setError] = useState('');
   const [listed, setListed] = useState(false);
   const [listPrice, setListPrice] = useState('0.1');
+  const [dragOver, setDragOver] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
 
   async function handleFile(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (!file) return;
-    const text = await file.text();
-    setContent(text);
+    setContent(await file.text());
+  }
+
+  function handleDrop(e: React.DragEvent) {
+    e.preventDefault();
+    setDragOver(false);
+    const file = e.dataTransfer.files[0];
+    if (file) file.text().then(setContent);
   }
 
   async function upload() {
     if (!content.trim() || !publicKey) return;
-    setLoading(true);
-    setError('');
+    setLoading(true); setError('');
     try {
       const res = await fetch('/api/upload', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ content, wallet: publicKey }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error);
       setResult(data);
-    } catch (e) {
-      setError(String(e));
-    }
+    } catch (e) { setError(String(e)); }
     setLoading(false);
   }
 
@@ -61,27 +65,18 @@ export default function Upload() {
     if (!result?.hash || !publicKey) return;
     setMemoLoading(true);
     try {
-      // Get the memo transaction from our API
       const res = await fetch('/api/onchain', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ action: 'memo', wallet: publicKey, hash: result.hash }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error);
-
-      // Deserialize and sign with Phantom
-      const txBytes = Buffer.from(data.transaction, 'base64');
-      const transaction = Transaction.from(txBytes);
-
+      const transaction = Transaction.from(Buffer.from(data.transaction, 'base64'));
       const provider = getProvider();
       if (!provider) throw new Error('wallet not connected');
-
       const signed = await provider.signAndSendTransaction(transaction);
       setMemoTx(signed.signature);
-    } catch (e) {
-      setError(`on-chain registration failed: ${e}`);
-    }
+    } catch (e) { setError(`On-chain registration failed: ${e}`); }
     setMemoLoading(false);
   }
 
@@ -91,8 +86,7 @@ export default function Upload() {
     if (isNaN(price) || price <= 0) return;
     try {
       await fetch('/api/marketplace', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ uploadId: result.uploadId, priceSol: price }),
       });
       setListed(true);
@@ -100,172 +94,163 @@ export default function Upload() {
   }
 
   return (
-    <div className="min-h-screen">
-      <nav className="border-b border-[#1a1a1a] bg-[#0a0a0a]/95 backdrop-blur-sm">
-        <div className="max-w-3xl mx-auto px-4 h-12 flex items-center justify-between">
-          <Link href="/" className="text-[#00ff41] font-bold text-sm">[CLORK v0.0.1]</Link>
-          <div className="flex items-center gap-4">
-            <Link href="/marketplace" className="text-xs text-[#555] hover:text-[#00ff41]">MARKETPLACE</Link>
-            {connected ? (
-              <span className="text-[10px] text-[#00ff41]">{publicKey?.slice(0, 4)}...{publicKey?.slice(-4)}</span>
-            ) : (
-              <button onClick={connect} className="text-xs text-[#ffb800] hover:text-[#00ff41]">CONNECT WALLET</button>
-            )}
-          </div>
-        </div>
-      </nav>
-
-      <div className="max-w-3xl mx-auto px-4 py-8">
-        <h1 className="text-2xl font-bold text-[#00ff41] mb-2">upload to clork</h1>
-        <p className="text-xs text-[#555] mb-6">
-          give clork your AI conversations. he will hash them, register proof on solana, and you can list them on the marketplace.
-          clork supports ChatGPT exports (conversations.json), Claude exports, or just paste text.
+    <div className="min-h-screen bg-grid">
+      <Nav />
+      <div className="max-w-2xl mx-auto px-6 pt-24 pb-16">
+        <h1 className="text-3xl font-bold text-white mb-2">Upload Data</h1>
+        <p className="text-sm text-zinc-400 mb-8">
+          Upload your AI conversations. Clork will parse, hash, and prepare them for on-chain registration and marketplace listing.
         </p>
 
         {!connected ? (
-          <div className="bg-[#111] border border-[#222] rounded-lg p-8 text-center">
-            <p className="text-sm text-[#555] mb-4">clork needs to know who you are. connect your wallet.</p>
-            <button onClick={connect} className="px-6 py-3 bg-[#00ff41] text-[#0a0a0a] font-bold text-sm rounded hover:bg-[#00cc33] transition-colors">
-              CONNECT WALLET
+          <div className="rounded-2xl bg-zinc-900/50 border border-zinc-800/50 p-12 text-center">
+            <div className="w-12 h-12 rounded-full bg-zinc-800 flex items-center justify-center mx-auto mb-4">
+              <svg className="w-5 h-5 text-zinc-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg>
+            </div>
+            <h3 className="text-lg font-semibold text-white mb-2">Connect Your Wallet</h3>
+            <p className="text-sm text-zinc-500 mb-6">Connect your Solana wallet to upload and register data ownership.</p>
+            <button onClick={connect}
+              className="px-6 py-3 bg-green-600 hover:bg-green-500 text-white font-semibold text-sm rounded-xl transition-all">
+              Connect Wallet
             </button>
-            <p className="text-[9px] text-[#333] mt-2">clork thinks wallets are physical objects but he is learning</p>
           </div>
         ) : !result ? (
           <div>
-            <div className="flex gap-3 mb-4">
-              <button onClick={() => fileRef.current?.click()}
-                className="flex-1 py-4 bg-[#111] border border-[#222] rounded-lg text-center hover:border-[#00ff41]/30 transition-colors">
-                <div className="text-sm text-[#00ff41] font-bold mb-1">UPLOAD FILE</div>
-                <div className="text-[10px] text-[#555]">ChatGPT conversations.json or Claude export</div>
-              </button>
+            {/* Drop zone */}
+            <div
+              onDragOver={e => { e.preventDefault(); setDragOver(true); }}
+              onDragLeave={() => setDragOver(false)}
+              onDrop={handleDrop}
+              onClick={() => fileRef.current?.click()}
+              className={`rounded-2xl border-2 border-dashed p-12 text-center cursor-pointer transition-all ${
+                dragOver ? 'border-green-500/50 bg-green-500/5' : 'border-zinc-800 hover:border-zinc-600 bg-zinc-900/30'
+              }`}>
+              <svg className="w-8 h-8 text-zinc-500 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" /></svg>
+              <div className="text-sm text-white font-medium mb-1">Drop file here or click to browse</div>
+              <div className="text-xs text-zinc-500">ChatGPT conversations.json, Claude export, or plain text</div>
               <input ref={fileRef} type="file" accept=".json,.txt,.md" onChange={handleFile} className="hidden" />
             </div>
 
-            <div className="text-xs text-[#333] text-center mb-4">— or paste directly —</div>
+            <div className="my-4 flex items-center gap-3">
+              <div className="flex-1 h-px bg-zinc-800" />
+              <span className="text-xs text-zinc-600">or paste directly</span>
+              <div className="flex-1 h-px bg-zinc-800" />
+            </div>
 
             <textarea
               value={content}
               onChange={e => setContent(e.target.value)}
-              placeholder="paste your AI conversations here... JSON export or plain text"
-              className="w-full bg-[#111] border border-[#222] rounded-lg p-4 text-xs text-[#00ff41] placeholder:text-[#333] focus:outline-none focus:border-[#00ff41]/30 h-48 resize-none"
+              placeholder="Paste your AI conversations here..."
+              className="w-full bg-zinc-900/50 border border-zinc-800 rounded-xl p-4 text-sm text-white placeholder:text-zinc-600 focus:outline-none focus:border-zinc-600 h-40 resize-none font-mono"
             />
 
-            {content && <div className="mt-2 text-[10px] text-[#555]">{(content.length / 1024).toFixed(1)} KB loaded</div>}
+            {content && (
+              <div className="mt-2 text-xs text-zinc-500">{(content.length / 1024).toFixed(1)} KB loaded</div>
+            )}
 
             <button onClick={upload} disabled={!content.trim() || loading}
-              className="mt-4 w-full py-3 bg-[#00ff41] text-[#0a0a0a] font-bold text-sm rounded hover:bg-[#00cc33] transition-colors disabled:opacity-50">
-              {loading ? 'CLORK IS PROCESSING...' : 'GIVE TO CLORK'}
+              className="mt-4 w-full py-3.5 bg-green-600 hover:bg-green-500 text-white font-semibold text-sm rounded-xl transition-all disabled:opacity-40 disabled:cursor-not-allowed">
+              {loading ? 'Processing...' : 'Upload & Parse'}
             </button>
 
-            {error && <p className="mt-3 text-xs text-[#ff0040]">[ERROR] {error}</p>}
+            {error && <p className="mt-3 text-xs text-red-400">{error}</p>}
 
-            <div className="mt-6 bg-[#111] border border-[#1a1a1a] rounded-lg p-4">
-              <div className="text-xs text-[#ffb800] font-bold mb-2">HOW TO EXPORT YOUR DATA:</div>
-              <div className="space-y-2 text-[11px] text-[#555]">
-                <div><span className="text-[#00ff41]">ChatGPT:</span> Settings → Data controls → Export data → Download conversations.json</div>
-                <div><span className="text-[#00ff41]">Claude:</span> Settings → Account → Export Data → Download and extract</div>
-                <div><span className="text-[#00ff41]">Or just paste:</span> Copy any conversation and paste it above</div>
+            <div className="mt-8 rounded-xl bg-zinc-900/30 border border-zinc-800/50 p-5">
+              <div className="text-xs font-medium text-zinc-300 mb-3">How to export your data</div>
+              <div className="space-y-2 text-xs text-zinc-500">
+                <div><span className="text-green-400 font-medium">ChatGPT:</span> Settings → Data controls → Export data → Download conversations.json</div>
+                <div><span className="text-green-400 font-medium">Claude:</span> Settings → Account → Export Data → Download and extract</div>
+                <div><span className="text-green-400 font-medium">Plain text:</span> Copy any conversation and paste it above</div>
               </div>
             </div>
           </div>
         ) : (
-          <div>
-            {/* Processing result */}
-            <div className="bg-[#0f1a0f] border border-[#1a2a1a] rounded-lg p-6 mb-4">
-              <div className="text-[#00ff41] text-sm font-bold mb-3">[PROCESSING COMPLETE]</div>
-              <p className="text-xs text-[#00ff41]/80 leading-relaxed mb-4">{result.clorkMessage}</p>
+          <div className="space-y-4">
+            {/* Result */}
+            <div className="rounded-2xl bg-zinc-900/50 border border-green-500/20 p-6">
+              <div className="flex items-center gap-2 mb-4">
+                <div className="w-2 h-2 rounded-full bg-green-500" />
+                <span className="text-sm font-medium text-green-400">Upload Complete</span>
+              </div>
 
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
+              <p className="text-xs text-zinc-400 mb-5 font-mono leading-relaxed">{result.clorkMessage}</p>
+
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-5">
                 {[
-                  { label: 'CONVERSATIONS', value: result.stats.conversations, color: '#00ff41' },
-                  { label: 'MESSAGES', value: result.stats.messages, color: '#00ff41' },
-                  { label: 'SOURCE', value: result.stats.source, color: '#ffb800' },
-                  { label: 'CATEGORY', value: result.stats.category, color: '#ffb800' },
+                  { label: 'Conversations', value: result.stats.conversations },
+                  { label: 'Messages', value: result.stats.messages },
+                  { label: 'Source', value: result.stats.source },
+                  { label: 'Category', value: result.stats.category },
                 ].map((s, i) => (
-                  <div key={i} className="bg-[#0a0a0a] rounded p-3">
-                    <div className="text-[8px] text-[#555]">{s.label}</div>
-                    <div className="text-lg font-bold" style={{ color: s.color }}>{s.value}</div>
+                  <div key={i} className="bg-zinc-950 rounded-lg p-3">
+                    <div className="text-[10px] text-zinc-500 uppercase tracking-wider">{s.label}</div>
+                    <div className="text-sm font-semibold text-white mt-1">{s.value}</div>
                   </div>
                 ))}
               </div>
 
-              <div className="bg-[#0a0a0a] rounded p-3 mb-4">
-                <div className="text-[8px] text-[#555] mb-1">DATA HASH (SHA-256)</div>
-                <div className="text-[11px] text-[#00ff41] font-mono break-all">{result.hash}</div>
+              <div className="bg-zinc-950 rounded-lg p-3">
+                <div className="text-[10px] text-zinc-500 uppercase tracking-wider mb-1">SHA-256 Hash</div>
+                <div className="text-xs text-green-400 font-mono break-all">{result.hash}</div>
               </div>
-
-              {Object.keys(result.stats.categories).length > 1 && (
-                <div className="flex gap-2 flex-wrap">
-                  {Object.entries(result.stats.categories).map(([cat, count]) => (
-                    <span key={cat} className="text-[9px] px-2 py-1 rounded bg-[#0a0a0a] text-[#555]">{cat}: {count}</span>
-                  ))}
-                </div>
-              )}
             </div>
 
-            {/* On-chain registration */}
-            <div className="bg-[#111] border border-[#222] rounded-lg p-5 mb-4">
+            {/* Step 1: On-chain */}
+            <div className="rounded-2xl bg-zinc-900/50 border border-zinc-800/50 p-6">
               <div className="flex items-center justify-between mb-3">
                 <div>
-                  <div className="text-xs text-[#ffb800] font-bold">STEP 1: REGISTER ON SOLANA</div>
-                  <div className="text-[10px] text-[#555] mt-1">write your data hash to the solana blockchain via memo program. this proves you own this data.</div>
+                  <div className="text-xs text-zinc-300 font-semibold">Step 1: Register On-Chain</div>
+                  <div className="text-xs text-zinc-500 mt-1">Write your data hash to Solana for immutable proof of ownership.</div>
                 </div>
-                {memoTx && <span className="text-[9px] px-2 py-1 rounded bg-[#00ff41]/10 text-[#00ff41]">CONFIRMED</span>}
+                {memoTx && <span className="text-[10px] px-2 py-1 rounded-full bg-green-500/10 text-green-400 font-medium">Confirmed</span>}
               </div>
 
               {!memoTx ? (
                 <button onClick={registerOnChain} disabled={memoLoading}
-                  className="w-full py-2.5 bg-[#ffb800] text-[#0a0a0a] font-bold text-xs rounded hover:bg-[#e6a600] transition-colors disabled:opacity-50">
-                  {memoLoading ? 'WRITING TO SOLANA...' : 'REGISTER HASH ON-CHAIN (~0.00005 SOL)'}
+                  className="w-full py-3 bg-zinc-800 hover:bg-zinc-700 text-white font-medium text-sm rounded-xl border border-zinc-700 transition-all disabled:opacity-50">
+                  {memoLoading ? 'Writing to Solana...' : 'Register Hash On-Chain (~0.00005 SOL)'}
                 </button>
               ) : (
-                <div className="bg-[#0a0a0a] rounded p-3">
-                  <div className="text-[8px] text-[#555] mb-1">TRANSACTION SIGNATURE</div>
+                <div className="bg-zinc-950 rounded-lg p-3">
+                  <div className="text-[10px] text-zinc-500 mb-1">Transaction</div>
                   <a href={`https://solscan.io/tx/${memoTx}`} target="_blank" rel="noopener"
-                    className="text-[11px] text-[#00ff41] font-mono break-all hover:underline">
-                    {memoTx}
-                  </a>
-                  <div className="text-[9px] text-[#555] mt-1">your data ownership is now provable on-chain. clork is very impressed.</div>
+                    className="text-xs text-green-400 font-mono break-all hover:underline">{memoTx}</a>
                 </div>
               )}
             </div>
 
-            {/* List on marketplace */}
-            <div className="bg-[#111] border border-[#222] rounded-lg p-5 mb-4">
-              <div className="text-xs text-[#ffb800] font-bold mb-2">STEP 2: LIST ON MARKETPLACE</div>
-              <div className="text-[10px] text-[#555] mb-4">set your price and list. buyers pay in SOL. clork takes a 5% fee.</div>
+            {/* Step 2: List */}
+            <div className="rounded-2xl bg-zinc-900/50 border border-zinc-800/50 p-6">
+              <div className="text-xs text-zinc-300 font-semibold mb-1">Step 2: List on Marketplace</div>
+              <div className="text-xs text-zinc-500 mb-4">Set your price. Buyers pay in SOL. You receive 95%, Clork takes 5%.</div>
 
               {!listed ? (
                 <div className="flex items-center gap-3">
-                  <div className="flex items-center bg-[#0a0a0a] border border-[#222] rounded px-3 py-2">
-                    <input
-                      type="number" step="0.01" min="0.01" value={listPrice}
+                  <div className="flex items-center bg-zinc-950 border border-zinc-800 rounded-xl px-4 py-2.5">
+                    <input type="number" step="0.01" min="0.01" value={listPrice}
                       onChange={e => setListPrice(e.target.value)}
-                      className="bg-transparent text-sm text-[#ffb800] font-bold w-20 focus:outline-none"
-                    />
-                    <span className="text-xs text-[#555] ml-1">SOL</span>
+                      className="bg-transparent text-sm text-white font-semibold w-20 focus:outline-none" />
+                    <span className="text-xs text-zinc-500 ml-1">SOL</span>
                   </div>
                   <button onClick={listOnMarketplace}
-                    className="flex-1 py-2.5 bg-[#00ff41] text-[#0a0a0a] font-bold text-xs rounded hover:bg-[#00cc33] transition-colors">
-                    LIST ON MARKETPLACE
+                    className="flex-1 py-2.5 bg-green-600 hover:bg-green-500 text-white font-semibold text-sm rounded-xl transition-all">
+                    List on Marketplace
                   </button>
                 </div>
               ) : (
-                <div className="bg-[#0f1a0f] border border-[#1a2a1a] rounded p-3 text-center">
-                  <div className="text-sm text-[#00ff41] font-bold">LISTED FOR {listPrice} SOL</div>
-                  <div className="text-[10px] text-[#555] mt-1">clork hopes someone buys it. clork believes in your data.</div>
-                  <Link href="/marketplace" className="text-xs text-[#ffb800] mt-2 inline-block hover:text-[#00ff41]">VIEW MARKETPLACE →</Link>
+                <div className="bg-green-500/5 border border-green-500/20 rounded-xl p-4 text-center">
+                  <div className="text-sm font-semibold text-green-400">Listed for {listPrice} SOL</div>
+                  <Link href="/marketplace" className="text-xs text-zinc-400 mt-2 inline-block hover:text-white transition-colors">View Marketplace →</Link>
                 </div>
               )}
             </div>
 
-            {/* Upload more */}
             <button onClick={() => { setResult(null); setContent(''); setMemoTx(null); setListed(false); setError(''); }}
-              className="w-full py-2.5 bg-[#111] border border-[#333] text-[#555] text-xs rounded hover:border-[#00ff41] transition-colors">
-              UPLOAD MORE DATA
+              className="w-full py-3 bg-zinc-900 border border-zinc-800 text-zinc-400 text-sm rounded-xl hover:text-white hover:border-zinc-600 transition-all">
+              Upload More Data
             </button>
 
-            {error && <p className="mt-3 text-xs text-[#ff0040]">[ERROR] {error}</p>}
+            {error && <p className="mt-2 text-xs text-red-400">{error}</p>}
           </div>
         )}
       </div>
