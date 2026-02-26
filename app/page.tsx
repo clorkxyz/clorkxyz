@@ -43,6 +43,7 @@ function Nav() {
           <Link href="/marketplace" className="text-xs text-[#555] hover:text-[#00ff41] transition-colors">MARKETPLACE</Link>
           <Link href="/leaderboard" className="text-xs text-[#555] hover:text-[#00ff41] transition-colors">LEADERBOARD</Link>
           <Link href="/chat" className="text-xs text-[#555] hover:text-[#00ff41] transition-colors">CHAT</Link>
+          <Link href="/api-docs" className="text-xs text-[#555] hover:text-[#00ff41] transition-colors">API</Link>
           <a href="#token" className="text-xs text-[#555] hover:text-[#00ff41] transition-colors">$CLORK</a>
         </div>
       </div>
