@@ -340,11 +340,12 @@ export default function Home() {
             <span className="text-xs text-[#8a8d91]">Clork &middot; AI Data Marketplace</span>
           </div>
           <p className="text-[11px] text-[#8a8d91] text-center max-w-lg">
-            Clork is a data marketplace platform. Not financial advice. $CLORK is a utility token, not a security. Your data, your ownership, your responsibility.
+            &copy; {new Date().getFullYear()} Clork. All rights reserved. Clork is a data marketplace platform. Not financial advice. $CLORK is a utility token, not a security. Your data, your ownership, your responsibility.
           </p>
           <div className="flex items-center gap-5">
             <Link href="/api-docs" className="text-xs text-[#65676b] hover:text-[#1877F2] transition-colors">API</Link>
             <Link href="/marketplace" className="text-xs text-[#65676b] hover:text-[#1877F2] transition-colors">Marketplace</Link>
+            <Link href="/terms" className="text-xs text-[#65676b] hover:text-[#1877F2] transition-colors">Terms</Link>
           </div>
         </div>
       </footer>
