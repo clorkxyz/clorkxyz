@@ -1,6 +1,5 @@
 'use client';
 
-// Lightweight wallet context — connects to Phantom/Solflare directly
 import { createContext, useContext, useState, useCallback, ReactNode } from 'react';
 
 interface WalletContextType {
@@ -9,32 +8,37 @@ interface WalletContextType {
   connect: () => Promise<void>;
   disconnect: () => void;
   signMessage: (message: Uint8Array) => Promise<Uint8Array | null>;
+  signAndSendTransaction: (transaction: Uint8Array) => Promise<string | null>;
+  getProvider: () => PhantomProvider | null;
+}
+
+interface PhantomProvider {
+  isPhantom?: boolean;
+  connect: () => Promise<{ publicKey: { toString: () => string; toBytes: () => Uint8Array } }>;
+  disconnect: () => Promise<void>;
+  signMessage: (message: Uint8Array, encoding: string) => Promise<{ signature: Uint8Array }>;
+  signAndSendTransaction: (transaction: unknown) => Promise<{ signature: string }>;
+  signTransaction: (transaction: unknown) => Promise<unknown>;
+  publicKey?: { toString: () => string; toBytes: () => Uint8Array };
 }
 
 const WalletContext = createContext<WalletContextType>({
-  publicKey: null, connected: false, connect: async () => {}, disconnect: () => {}, signMessage: async () => null,
+  publicKey: null, connected: false, connect: async () => {}, disconnect: () => {},
+  signMessage: async () => null, signAndSendTransaction: async () => null, getProvider: () => null,
 });
 
 export const useWallet = () => useContext(WalletContext);
 
-declare global {
-  interface Window {
-    solana?: {
-      isPhantom?: boolean;
-      connect: () => Promise<{ publicKey: { toString: () => string } }>;
-      disconnect: () => Promise<void>;
-      signMessage: (message: Uint8Array, encoding: string) => Promise<{ signature: Uint8Array }>;
-      publicKey?: { toString: () => string };
-    };
-  }
-}
-
 export default function Providers({ children }: { children: ReactNode }) {
   const [publicKey, setPublicKey] = useState<string | null>(null);
 
+  const getProvider = useCallback((): PhantomProvider | null => {
+    if (typeof window === 'undefined') return null;
+    return (window as unknown as { solana?: PhantomProvider }).solana || null;
+  }, []);
+
   const connect = useCallback(async () => {
-    if (typeof window === 'undefined') return;
-    const phantom = window.solana;
+    const phantom = getProvider();
     if (!phantom?.isPhantom) {
       window.open('https://phantom.app/', '_blank');
       return;
@@ -45,23 +49,33 @@ export default function Providers({ children }: { children: ReactNode }) {
     } catch (e) {
       console.error('connect failed:', e);
     }
-  }, []);
+  }, [getProvider]);
 
   const disconnect = useCallback(() => {
-    window.solana?.disconnect();
+    getProvider()?.disconnect();
     setPublicKey(null);
-  }, []);
+  }, [getProvider]);
 
   const signMessage = useCallback(async (message: Uint8Array) => {
-    if (!window.solana) return null;
+    const phantom = getProvider();
+    if (!phantom) return null;
     try {
-      const { signature } = await window.solana.signMessage(message, 'utf8');
+      const { signature } = await phantom.signMessage(message, 'utf8');
       return signature;
     } catch { return null; }
-  }, []);
+  }, [getProvider]);
+
+  const signAndSendTransaction = useCallback(async (transaction: Uint8Array) => {
+    const phantom = getProvider();
+    if (!phantom) return null;
+    try {
+      const { signature } = await phantom.signAndSendTransaction(transaction);
+      return signature;
+    } catch { return null; }
+  }, [getProvider]);
 
   return (
-    <WalletContext.Provider value={{ publicKey, connected: !!publicKey, connect, disconnect, signMessage }}>
+    <WalletContext.Provider value={{ publicKey, connected: !!publicKey, connect, disconnect, signMessage, signAndSendTransaction, getProvider }}>
       {children}
     </WalletContext.Provider>
   );
