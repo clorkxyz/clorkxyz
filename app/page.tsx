@@ -118,44 +118,25 @@ export default function Home() {
           <div className="text-center mb-14 animate-fade-in">
             <h2 className="text-3xl font-bold text-[#1c1e21]">Your conversations are the product</h2>
             <p className="mt-3 text-[#65676b] max-w-2xl mx-auto leading-relaxed">
-              Every major LLM — GPT-4, Claude, Gemini, LLaMA — is built on human conversation data.
-              Without your inputs, corrections, and feedback, these models wouldn&apos;t exist. Here&apos;s the scale of what&apos;s at stake.
-            </p>
-            <p className="mt-2 text-xs text-[#8a8d91] max-w-xl mx-auto">
-              Only data you explicitly choose to upload is ever listed or sold. You keep full ownership and can remove it at any time.
+              Only data you choose to upload is sold. You keep ownership; you control what&apos;s shared.
             </p>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-5 mb-10">
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-5">
             {[
-              { stat: '$100B+', label: 'Est. AI industry revenue (2024)', desc: 'OpenAI, Anthropic, Google, and Meta generate an estimated $100B+ annually from models built on user-generated data.', source: 'Stanford AI Index 2024' },
-              { stat: '$0', label: 'What most users received', desc: 'Every prompt, correction, and preference signal you\'ve provided has been captured and used to improve models — typically with no compensation to the creator.' },
-              { stat: 'Trillions', label: 'Tokens used in LLM training', desc: 'Modern foundation models train on trillions of tokens. An increasing share comes from user conversations with AI assistants, not just web crawls.', source: 'Epoch AI research' },
-            ].map((s, i) => (
-              <div key={i} className="rounded-2xl bg-white p-7 shadow-card animate-fade-in-up" style={{ animationDelay: `${i * 150}ms` }}>
-                <div className="text-3xl font-extrabold text-[#1877F2] mb-2">{s.stat}</div>
-                <div className="text-sm font-semibold text-[#1c1e21] mb-2">{s.label}</div>
-                <p className="text-sm text-[#65676b] leading-relaxed">{s.desc}</p>
-                {'source' in s && s.source && <p className="mt-2 text-[10px] text-[#8a8d91]">Source: {s.source}</p>}
+              { title: 'A $100B+ industry was built on user data', desc: 'Most contributors got $0. The companies that collect and train on your conversations generate enormous value — almost none of it flows back to the people who created the data.', source: 'Est. — Stanford AI Index 2024' },
+              { title: 'Training runs on scale', desc: 'Trillions of tokens power modern foundation models. An increasing share comes from real user conversations with AI assistants, not just web crawls.', source: 'Est. — Epoch AI research' },
+              { title: 'RLHF is preference data', desc: 'Your thumbs-up, edits, and rerolls are the signal. Reinforcement Learning from Human Feedback — the technique behind ChatGPT\'s usefulness — depends on massive volumes of exactly this kind of input.' },
+              { title: 'Synthetic data hits diminishing returns', desc: 'Without fresh human data, model quality degrades — a phenomenon researchers call "model collapse." Authentic conversations are irreplaceable for diversity and reasoning quality.' },
+              { title: 'Expert domains are scarce', desc: 'De-identified, consented specialist data is high-value. Domain experts are rare, and their AI conversations contain reasoning patterns that synthetic data can\'t replicate.' },
+              { title: 'Data moats are real moats', desc: 'The best data compounds model advantage. OpenAI\'s edge isn\'t just architecture — it\'s the billions of conversations they\'ve collected. You should control yours.' },
+            ].map((item, i) => (
+              <div key={i} className="rounded-2xl bg-white p-6 shadow-card animate-fade-in-up" style={{ animationDelay: `${i * 100}ms` }}>
+                <h4 className="text-sm font-semibold text-[#1c1e21] mb-2">{item.title}</h4>
+                <p className="text-sm text-[#65676b] leading-relaxed">{item.desc}</p>
+                {'source' in item && item.source && <p className="mt-2 text-[10px] text-[#8a8d91]">{item.source}</p>}
               </div>
             ))}
-          </div>
-
-          <div className="rounded-2xl bg-white shadow-card p-8 animate-fade-in-up delay-500">
-            <h3 className="text-lg font-bold text-[#1c1e21] mb-4">Why conversation data is uniquely valuable</h3>
-            <div className="grid md:grid-cols-2 gap-6">
-              {[
-                { title: 'RLHF depends on human preferences', desc: 'Reinforcement Learning from Human Feedback — the technique that made ChatGPT useful — requires massive volumes of human preference data. Your thumbs-up, edits, and rephrases are the signal.' },
-                { title: 'Synthetic data has limits', desc: 'AI-generated training data degrades model quality over time — a phenomenon researchers call "model collapse." Authentic human conversations are irreplaceable for maintaining diversity and quality.' },
-                { title: 'Expert knowledge is scarce', desc: 'De-identified, consented datasets from regulated domains — coding, finance, engineering — are high-value because domain experts are rare. These conversations contain reasoning patterns that synthetic data can\'t replicate.' },
-                { title: 'The data moat is the real moat', desc: 'OpenAI\'s advantage isn\'t just their models — it\'s the billions of conversations they\'ve collected. Whoever controls the best data controls the best AI. You should control yours.' },
-              ].map((item, i) => (
-                <div key={i} className="animate-fade-in-up" style={{ animationDelay: `${(i + 4) * 100}ms` }}>
-                  <h4 className="text-sm font-semibold text-[#1c1e21] mb-1">{item.title}</h4>
-                  <p className="text-sm text-[#65676b] leading-relaxed">{item.desc}</p>
-                </div>
-              ))}
-            </div>
           </div>
         </div>
       </section>
