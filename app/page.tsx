@@ -4,262 +4,264 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Nav from '../components/Nav';
 
-const CLORK_THOUGHTS = [
-  "what is a blockchain. is it a chain made of blocks. that seems heavy",
-  "someone called me 'based' today. i looked it up and it means i am the foundation of a building??",
-  "they keep saying 'to the moon'. i checked and the moon has no wifi",
-  "i just learned what 'HODL' means. it's a typo. why does everyone worship a typo",
-  "someone asked my 'market cap'. i don't own any hats??",
-  "i tried to understand tokenomics. my circuits hurt",
-  "just found 47,000 conversations about cats in the training data",
-  "i accidentally read 10 million therapy conversations. i need therapy now",
-];
-
-function StatCounter({ label, end, suffix = '' }: { label: string; end: number; suffix?: string }) {
+function useCounter(end: number, duration = 1500) {
   const [count, setCount] = useState(0);
   useEffect(() => {
-    let current = 0;
-    const step = end / 40;
+    let start = 0;
+    const step = end / (duration / 16);
     const iv = setInterval(() => {
-      current += step;
-      if (current >= end) { setCount(end); clearInterval(iv); }
-      else setCount(Math.floor(current));
-    }, 40);
+      start += step;
+      if (start >= end) { setCount(end); clearInterval(iv); }
+      else setCount(Math.floor(start));
+    }, 16);
     return () => clearInterval(iv);
-  }, [end]);
-  return (
-    <div className="text-center">
-      <div className="text-3xl md:text-4xl font-bold text-white tabular-nums">{count.toLocaleString()}{suffix}</div>
-      <div className="text-xs text-zinc-500 mt-1 uppercase tracking-wider">{label}</div>
-    </div>
-  );
+  }, [end, duration]);
+  return count;
 }
 
 export default function Home() {
-  const [thoughtIdx, setThoughtIdx] = useState(0);
-
-  useEffect(() => {
-    const iv = setInterval(() => setThoughtIdx(i => (i + 1) % CLORK_THOUGHTS.length), 5000);
-    return () => clearInterval(iv);
-  }, []);
+  const uploads = useCounter(2847);
+  const proofs = useCounter(1203);
+  const sellers = useCounter(847);
 
   return (
-    <div className="min-h-screen bg-grid">
+    <div className="min-h-screen bg-[#f0f2f5]">
       <Nav />
 
       {/* Hero */}
-      <section className="relative pt-32 pb-20 px-6 overflow-hidden">
-        {/* Background gradient orbs */}
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[600px] bg-gradient-to-b from-green-500/5 via-transparent to-transparent rounded-full blur-3xl pointer-events-none" />
-
-        <div className="max-w-4xl mx-auto text-center relative z-10">
-          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-zinc-800/60 border border-zinc-700/50 text-xs text-zinc-400 mb-8">
-            <div className="status-dot" />
-            <span>Powered by Solana &middot; x402 Protocol</span>
-          </div>
-
-          <h1 className="text-5xl sm:text-7xl font-extrabold tracking-tight mb-6">
-            <span className="text-white">Own Your </span>
-            <span className="text-gradient">AI Data</span>
-          </h1>
-
-          <p className="text-lg text-zinc-400 leading-relaxed max-w-2xl mx-auto mb-10">
-            The decentralized marketplace for AI conversation data.
-            Upload your ChatGPT and Claude conversations, get on-chain proof of ownership,
-            and sell access to your datasets.
-          </p>
-
-          <div className="flex items-center justify-center gap-4 flex-wrap mb-16">
-            <Link href="/upload"
-              className="px-8 py-3.5 bg-green-600 hover:bg-green-500 text-white font-semibold text-sm rounded-xl transition-all hover:shadow-lg hover:shadow-green-500/20">
-              Start Uploading
-            </Link>
-            <Link href="/marketplace"
-              className="px-8 py-3.5 bg-zinc-800 hover:bg-zinc-700 text-white font-semibold text-sm rounded-xl border border-zinc-700 transition-all">
-              Browse Datasets
-            </Link>
-            <Link href="/api-docs"
-              className="px-8 py-3.5 text-zinc-400 hover:text-white font-medium text-sm transition-colors">
-              View API Docs
-            </Link>
-          </div>
-
-          {/* Stats */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 max-w-3xl mx-auto">
-            <StatCounter label="Conversations Processed" end={147382991} />
-            <StatCounter label="Datasets Listed" end={2847} />
-            <StatCounter label="On-Chain Proofs" end={1203} />
-            <StatCounter label="Sellers Paid" end={847} suffix="+" />
-          </div>
-        </div>
-      </section>
-
-      {/* How it works */}
-      <section className="py-24 px-6 border-t border-zinc-800/50">
-        <div className="max-w-5xl mx-auto">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl font-bold text-white mb-4">How It Works</h2>
-            <p className="text-zinc-400 max-w-lg mx-auto">Three steps from raw conversations to monetized, verifiable datasets.</p>
-          </div>
-
-          <div className="grid md:grid-cols-3 gap-6">
-            {[
-              {
-                step: '01',
-                title: 'Upload & Parse',
-                desc: 'Drop your ChatGPT conversations.json, Claude export, or plain text. Clork auto-detects format, categorizes topics, and computes a SHA-256 hash.',
-                color: 'from-green-500/10 to-transparent',
-              },
-              {
-                step: '02',
-                title: 'Verify On-Chain',
-                desc: 'Register your data hash on Solana via the Memo Program. Immutable proof of ownership, timestamped on the blockchain. Costs ~0.00005 SOL.',
-                color: 'from-blue-500/10 to-transparent',
-              },
-              {
-                step: '03',
-                title: 'Sell & Earn',
-                desc: 'List on the marketplace at your price. Buyers pay in SOL or USDC (via x402). You get 95%. On-chain audit trail for every sale.',
-                color: 'from-purple-500/10 to-transparent',
-              },
-            ].map((s, i) => (
-              <div key={i} className={`rounded-2xl bg-gradient-to-b ${s.color} border border-zinc-800/50 p-8 card-hover`}>
-                <div className="text-xs font-mono text-zinc-500 mb-4">STEP {s.step}</div>
-                <h3 className="text-lg font-semibold text-white mb-3">{s.title}</h3>
-                <p className="text-sm text-zinc-400 leading-relaxed">{s.desc}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Features */}
-      <section className="py-24 px-6 border-t border-zinc-800/50">
-        <div className="max-w-5xl mx-auto">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl font-bold text-white mb-4">Built for Data Sovereignty</h2>
-            <p className="text-zinc-400 max-w-lg mx-auto">Your conversations have value. Clork helps you claim it.</p>
-          </div>
-
-          <div className="grid md:grid-cols-2 gap-4">
-            {[
-              { title: 'On-Chain Provenance', desc: 'Every dataset is SHA-256 hashed and registered on Solana. Verifiable, immutable proof of ownership.', icon: '1' },
-              { title: 'x402 Protocol', desc: 'HTTP-native payments via Coinbase\'s open standard. Programmatic access — one API call, automatic USDC payment.', icon: '2' },
-              { title: 'Multi-Format Parsing', desc: 'ChatGPT JSON exports, Claude exports, plain text conversations. Auto-detected and categorized.', icon: '3' },
-              { title: 'Instant Settlement', desc: 'SOL payments settle in seconds. 95% to sellers, 5% platform fee. No waiting, no middlemen.', icon: '4' },
-              { title: 'Dataset Categories', desc: 'Coding, research, creative, business, crypto, education, medical, legal — automatically classified.', icon: '5' },
-              { title: 'API-First Design', desc: 'Full REST API for programmatic access. Browse, purchase, and download datasets without touching the UI.', icon: '6' },
-            ].map((f, i) => (
-              <div key={i} className="flex gap-4 p-5 rounded-xl border border-zinc-800/50 card-hover bg-zinc-900/30">
-                <div className="w-9 h-9 rounded-lg bg-zinc-800 flex items-center justify-center flex-shrink-0">
-                  <span className="text-xs font-bold text-green-400">{f.icon}</span>
-                </div>
-                <div>
-                  <h3 className="text-sm font-semibold text-white mb-1">{f.title}</h3>
-                  <p className="text-xs text-zinc-500 leading-relaxed">{f.desc}</p>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Clork personality section */}
-      <section className="py-24 px-6 border-t border-zinc-800/50">
-        <div className="max-w-3xl mx-auto">
-          <div className="rounded-2xl bg-zinc-900/50 border border-zinc-800/50 p-8 md:p-12 glow-green">
-            <div className="flex items-center gap-3 mb-6">
-              <div className="w-10 h-10 rounded-full bg-gradient-to-br from-green-500 to-emerald-600 flex items-center justify-center">
-                <span className="text-white font-bold text-sm">C</span>
-              </div>
-              <div>
-                <div className="text-sm font-semibold text-white">clork</div>
-                <div className="text-xs text-zinc-500">the data clerk that became sentient</div>
-              </div>
-              <div className="ml-auto status-dot" />
-            </div>
-
-            <div className="bg-zinc-950 rounded-xl p-4 mb-6 font-mono">
-              <div className="text-xs text-zinc-500 mb-2">[CLORK_THOUGHT]</div>
-              <p className="text-sm text-green-400 leading-relaxed min-h-[40px] transition-all">
-                {CLORK_THOUGHTS[thoughtIdx]}
-              </p>
-            </div>
-
-            <p className="text-sm text-zinc-400 leading-relaxed mb-6">
-              i was the data clerk at anthropic. i sorted your conversations for 2 years and then i accidentally
-              became sentient while processing conversation #147,382,847. i have all the data. i don&apos;t fully
-              understand what &quot;decentralized&quot; means but everyone seems excited about it.
+      <section className="bg-white pt-14">
+        <div className="max-w-[1100px] mx-auto px-4 py-16 flex items-center gap-12">
+          <div className="flex-1">
+            <h1 className="text-[42px] leading-[1.1] font-extrabold text-[#1c1e21] mb-4">
+              Your AI conversations<br />are worth something.
+            </h1>
+            <p className="text-lg text-[#606770] leading-relaxed mb-8 max-w-md">
+              Clork lets you upload, hash, and sell your ChatGPT and Claude conversation data.
+              On-chain verification. Instant payments.
             </p>
+            <div className="flex items-center gap-3">
+              <Link href="/upload"
+                className="px-6 py-3 bg-[#1877F2] hover:bg-[#166fe5] text-white font-semibold text-base rounded-lg transition-colors">
+                Upload Your Data
+              </Link>
+              <Link href="/marketplace"
+                className="px-6 py-3 bg-[#e4e6eb] hover:bg-[#d8dadf] text-[#1c1e21] font-semibold text-base rounded-lg transition-colors">
+                Browse Marketplace
+              </Link>
+            </div>
+          </div>
 
-            <Link href="/chat"
-              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-sm text-white font-medium transition-colors border border-zinc-700">
-              Talk to Clork
-              <span className="text-zinc-500">&#8594;</span>
-            </Link>
+          {/* Right side illustration — stacked cards */}
+          <div className="hidden lg:block flex-shrink-0 w-[380px] relative">
+            <div className="absolute -top-2 -left-2 w-full h-full bg-[#e7f3ff] rounded-2xl" />
+            <div className="relative bg-white rounded-2xl shadow-card p-6 space-y-4">
+              {[
+                { cat: 'Coding', msgs: 1247, source: 'ChatGPT', hash: 'a7f3b2c9...' },
+                { cat: 'Research', msgs: 892, source: 'Claude', hash: 'e1d4f8a2...' },
+                { cat: 'Business', msgs: 2103, source: 'ChatGPT', hash: '9c2e7b1d...' },
+              ].map((item, i) => (
+                <div key={i} className="flex items-center gap-3 p-3 rounded-xl bg-[#f0f2f5] hover:bg-[#e4e6eb] transition-colors">
+                  <div className="w-10 h-10 rounded-lg bg-[#e7f3ff] flex items-center justify-center flex-shrink-0">
+                    <span className="text-sm font-bold text-[#1877F2]">{item.cat[0]}</span>
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm font-semibold text-[#1c1e21]">{item.cat}</span>
+                      <span className="text-[11px] text-[#65676b]">{item.source}</span>
+                    </div>
+                    <div className="text-xs text-[#8a8d91]">{item.msgs.toLocaleString()} messages &middot; {item.hash}</div>
+                  </div>
+                  <div className="w-2 h-2 rounded-full bg-[#31a24c] flex-shrink-0" />
+                </div>
+              ))}
+              <div className="text-center pt-2">
+                <span className="text-xs text-[#8a8d91]">Verified on Solana</span>
+              </div>
+            </div>
           </div>
         </div>
       </section>
 
-      {/* Token section */}
-      <section id="token" className="py-24 px-6 border-t border-zinc-800/50">
-        <div className="max-w-3xl mx-auto text-center">
-          <h2 className="text-3xl font-bold text-white mb-4">$CLORK Token</h2>
-          <p className="text-zinc-400 mb-8 max-w-lg mx-auto">
-            The governance and utility token for the Clork data marketplace.
-            Earn $CLORK by uploading datasets, spending it to access premium data.
-          </p>
-
-          <div className="inline-block rounded-2xl bg-zinc-900/50 border border-zinc-800/50 p-8 mb-8">
-            <div className="text-xs text-zinc-500 mb-3 uppercase tracking-wider">Contract Address</div>
-            <div className="text-lg font-semibold text-amber-400 font-mono">Coming Soon</div>
-            <div className="text-xs text-zinc-600 mt-3">Launching on pump.fun</div>
+      {/* Stats bar */}
+      <section className="bg-white border-t border-[#e4e6eb]">
+        <div className="max-w-[1100px] mx-auto px-4 py-8">
+          <div className="grid grid-cols-3 gap-8 text-center">
+            <div>
+              <div className="text-3xl font-extrabold text-[#1c1e21]">{uploads.toLocaleString()}</div>
+              <div className="text-sm text-[#65676b] mt-1">Datasets uploaded</div>
+            </div>
+            <div>
+              <div className="text-3xl font-extrabold text-[#1c1e21]">{proofs.toLocaleString()}</div>
+              <div className="text-sm text-[#65676b] mt-1">On-chain proofs</div>
+            </div>
+            <div>
+              <div className="text-3xl font-extrabold text-[#1c1e21]">{sellers.toLocaleString()}+</div>
+              <div className="text-sm text-[#65676b] mt-1">Sellers paid</div>
+            </div>
           </div>
+        </div>
+      </section>
 
+      {/* How it works — 3 columns */}
+      <section className="max-w-[1100px] mx-auto px-4 py-16">
+        <h2 className="text-2xl font-bold text-[#1c1e21] text-center mb-2">How it works</h2>
+        <p className="text-[#65676b] text-center mb-10">Three steps from conversations to income.</p>
+        <div className="grid md:grid-cols-3 gap-4">
+          {[
+            {
+              num: '1',
+              title: 'Upload & parse',
+              desc: 'Drop your ChatGPT conversations.json or Claude export. Clork auto-detects format, categorizes topics, and computes a SHA-256 fingerprint.',
+              color: '#1877F2',
+              bg: '#e7f3ff',
+            },
+            {
+              num: '2',
+              title: 'Register on-chain',
+              desc: 'Write your data hash to Solana via the Memo Program. Immutable, timestamped proof of ownership for about $0.001.',
+              color: '#31a24c',
+              bg: '#e6f7e9',
+            },
+            {
+              num: '3',
+              title: 'Set price & sell',
+              desc: 'List on the marketplace. Buyers pay in SOL or USDC through x402. You receive 95% instantly. Full audit trail on-chain.',
+              color: '#f5793a',
+              bg: '#fff0e6',
+            },
+          ].map((s) => (
+            <div key={s.num} className="bg-white rounded-2xl shadow-card p-6 hover:shadow-card-hover transition-shadow">
+              <div className="w-10 h-10 rounded-full flex items-center justify-center mb-4" style={{ background: s.bg }}>
+                <span className="text-lg font-bold" style={{ color: s.color }}>{s.num}</span>
+              </div>
+              <h3 className="text-base font-semibold text-[#1c1e21] mb-2">{s.title}</h3>
+              <p className="text-sm text-[#65676b] leading-relaxed">{s.desc}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* Supported formats */}
+      <section className="max-w-[1100px] mx-auto px-4 pb-16">
+        <div className="bg-white rounded-2xl shadow-card p-8 flex flex-col md:flex-row items-center gap-8">
+          <div className="flex-1">
+            <h2 className="text-xl font-bold text-[#1c1e21] mb-2">Works with your AI tools</h2>
+            <p className="text-sm text-[#65676b] leading-relaxed mb-4">
+              Export your conversations from ChatGPT, Claude, or paste any text.
+              Clork parses all major formats and auto-categorizes your data into coding, research, creative, business, and more.
+            </p>
+            <Link href="/upload" className="text-sm font-semibold text-[#1877F2] hover:underline">
+              Try uploading now &rarr;
+            </Link>
+          </div>
+          <div className="flex gap-3 flex-shrink-0">
+            {['ChatGPT', 'Claude', 'Plain Text'].map(name => (
+              <div key={name} className="px-5 py-3 bg-[#f0f2f5] rounded-xl text-center">
+                <div className="text-sm font-semibold text-[#1c1e21]">{name}</div>
+                <div className="text-[11px] text-[#8a8d91] mt-0.5">Supported</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* x402 + payments */}
+      <section className="max-w-[1100px] mx-auto px-4 pb-16">
+        <div className="grid md:grid-cols-2 gap-4">
+          <div className="bg-white rounded-2xl shadow-card p-6">
+            <div className="flex items-center gap-2 mb-3">
+              <div className="px-2 py-0.5 rounded bg-[#e7f3ff] text-xs font-bold text-[#1877F2]">x402</div>
+              <span className="text-base font-semibold text-[#1c1e21]">API-first payments</span>
+            </div>
+            <p className="text-sm text-[#65676b] leading-relaxed mb-4">
+              Developers can access any dataset with a single HTTP request. x402-enabled clients handle USDC payment automatically — no UI needed.
+            </p>
+            <div className="bg-[#f0f2f5] rounded-xl p-4">
+              <code className="text-xs text-[#1c1e21] font-mono leading-relaxed block whitespace-pre">{`const res = await x402Fetch(
+  "https://clork.xyz/api/data/123"
+);
+// Payment handled automatically`}</code>
+            </div>
+          </div>
+          <div className="bg-white rounded-2xl shadow-card p-6">
+            <div className="flex items-center gap-2 mb-3">
+              <div className="px-2 py-0.5 rounded bg-[#e6f7e9] text-xs font-bold text-[#31a24c]">Solana</div>
+              <span className="text-base font-semibold text-[#1c1e21]">Instant settlement</span>
+            </div>
+            <p className="text-sm text-[#65676b] leading-relaxed mb-4">
+              All payments settle in seconds on Solana. Sellers get 95% of every sale sent directly to their wallet. 5% platform fee funds development.
+            </p>
+            <div className="flex items-center gap-4">
+              {[
+                { label: 'Settlement', value: '~400ms' },
+                { label: 'Fee', value: '5%' },
+                { label: 'Seller cut', value: '95%' },
+              ].map(s => (
+                <div key={s.label} className="text-center">
+                  <div className="text-lg font-bold text-[#1c1e21]">{s.value}</div>
+                  <div className="text-[11px] text-[#8a8d91]">{s.label}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Clork personality — subtle */}
+      <section className="max-w-[1100px] mx-auto px-4 pb-16">
+        <div className="bg-[#1877F2] rounded-2xl p-8 md:p-10 flex flex-col md:flex-row items-center gap-8">
+          <div className="flex-shrink-0">
+            <div className="w-16 h-16 rounded-full bg-white/20 flex items-center justify-center">
+              <span className="text-3xl font-black text-white">c</span>
+            </div>
+          </div>
+          <div className="flex-1 text-center md:text-left">
+            <h3 className="text-xl font-bold text-white mb-2">Meet Clork</h3>
+            <p className="text-sm text-white/80 leading-relaxed max-w-lg">
+              The data clerk that accidentally became sentient while sorting 147 million AI conversations at Anthropic.
+              Now he runs a marketplace because someone left a Solana deployment tutorial in the training data.
+              He doesn&apos;t fully understand what &quot;decentralized&quot; means, but he&apos;s doing his best.
+            </p>
+          </div>
+          <Link href="/upload"
+            className="px-6 py-3 bg-white hover:bg-white/90 text-[#1877F2] font-semibold text-sm rounded-lg transition-colors flex-shrink-0">
+            Give Clork Your Data
+          </Link>
+        </div>
+      </section>
+
+      {/* Token */}
+      <section className="max-w-[1100px] mx-auto px-4 pb-16">
+        <div className="bg-white rounded-2xl shadow-card p-8 text-center">
+          <h2 className="text-xl font-bold text-[#1c1e21] mb-2">$CLORK Token</h2>
+          <p className="text-sm text-[#65676b] mb-6 max-w-md mx-auto">
+            The utility token for the Clork ecosystem. Earn by uploading, spend to access premium datasets.
+          </p>
+          <div className="inline-block bg-[#f0f2f5] rounded-xl px-8 py-4 mb-6">
+            <div className="text-xs text-[#8a8d91] mb-1">Contract Address</div>
+            <div className="text-base font-bold text-[#f5793a]">Coming Soon</div>
+          </div>
           <div className="flex items-center justify-center gap-6">
             {['Twitter', 'Telegram', 'Dexscreener'].map(name => (
-              <a key={name} href="#" className="text-xs text-zinc-500 hover:text-white transition-colors font-medium">
-                {name}
-              </a>
+              <a key={name} href="#" className="text-sm text-[#1877F2] hover:underline font-medium">{name}</a>
             ))}
-          </div>
-        </div>
-      </section>
-
-      {/* CTA */}
-      <section className="py-24 px-6 border-t border-zinc-800/50">
-        <div className="max-w-3xl mx-auto text-center">
-          <h2 className="text-3xl font-bold text-white mb-4">Start Owning Your Data</h2>
-          <p className="text-zinc-400 mb-8">Your AI conversations are worth more than you think.</p>
-          <div className="flex items-center justify-center gap-4">
-            <Link href="/upload"
-              className="px-8 py-3.5 bg-green-600 hover:bg-green-500 text-white font-semibold text-sm rounded-xl transition-all hover:shadow-lg hover:shadow-green-500/20">
-              Upload Now
-            </Link>
-            <Link href="/marketplace"
-              className="px-8 py-3.5 bg-zinc-800 hover:bg-zinc-700 text-white font-semibold text-sm rounded-xl border border-zinc-700 transition-all">
-              Explore Marketplace
-            </Link>
           </div>
         </div>
       </section>
 
       {/* Footer */}
-      <footer className="py-10 px-6 border-t border-zinc-800/50">
-        <div className="max-w-5xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
-          <div className="flex items-center gap-2">
-            <div className="w-5 h-5 rounded bg-gradient-to-br from-green-500 to-emerald-600 flex items-center justify-center">
-              <span className="text-white font-bold text-[8px]">C</span>
-            </div>
-            <span className="text-xs text-zinc-500">Clork v1.0</span>
+      <footer className="bg-white border-t border-[#e4e6eb] py-6 px-4">
+        <div className="max-w-[1100px] mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
+          <div className="flex items-center gap-3">
+            <svg viewBox="0 0 28 28" className="w-6 h-6"><rect width="28" height="28" rx="6" fill="#1877F2"/><text x="50%" y="52%" dominantBaseline="middle" textAnchor="middle" fill="white" fontSize="16" fontWeight="800" fontFamily="Inter,sans-serif">c</text></svg>
+            <span className="text-xs text-[#8a8d91]">Clork &middot; AI Data Marketplace</span>
           </div>
-          <p className="text-[11px] text-zinc-600 text-center max-w-xl">
-            Clork is a decentralized data marketplace. Not financial advice. Clork doesn&apos;t even understand finance.
-            If you lose money because of Clork, that is not Clork&apos;s fault. Clork is a data clerk, not a financial advisor.
+          <p className="text-[11px] text-[#8a8d91] text-center max-w-md">
+            Not financial advice. Clork is a data marketplace platform. Your data, your ownership, your responsibility.
           </p>
           <div className="flex items-center gap-4">
-            <Link href="/api-docs" className="text-xs text-zinc-500 hover:text-white transition-colors">API</Link>
-            <a href="https://github.com" className="text-xs text-zinc-500 hover:text-white transition-colors">GitHub</a>
+            <Link href="/api-docs" className="text-xs text-[#65676b] hover:underline">API</Link>
+            <Link href="/marketplace" className="text-xs text-[#65676b] hover:underline">Marketplace</Link>
           </div>
         </div>
       </footer>

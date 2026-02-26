@@ -14,68 +14,62 @@ export default function Leaderboard() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch('/api/leaderboard')
-      .then(r => r.json())
+    fetch('/api/leaderboard').then(r => r.json())
       .then(data => { setLeaders(Array.isArray(data) ? data : data.leaders || []); setLoading(false); })
       .catch(() => setLoading(false));
   }, []);
 
   return (
-    <div className="min-h-screen bg-grid">
+    <div className="min-h-screen bg-[#f0f2f5]">
       <Nav />
-      <div className="max-w-4xl mx-auto px-6 pt-24 pb-16">
-        <h1 className="text-3xl font-bold text-white mb-2">Leaderboard</h1>
-        <p className="text-sm text-zinc-400 mb-8">Top data contributors ranked by uploads, conversations, and earnings.</p>
+      <div className="max-w-[900px] mx-auto px-4 pt-20 pb-16">
+        <h1 className="text-2xl font-bold text-[#1c1e21] mb-1">Leaderboard</h1>
+        <p className="text-sm text-[#65676b] mb-6">Top contributors by uploads, data volume, and earnings.</p>
 
-        {loading ? (
-          <div className="text-center py-20">
-            <div className="w-6 h-6 border-2 border-zinc-700 border-t-green-500 rounded-full animate-spin mx-auto" />
+        <div className="bg-white rounded-2xl shadow-card overflow-hidden">
+          {/* Header */}
+          <div className="grid grid-cols-6 gap-4 px-6 py-3 border-b border-[#e4e6eb] text-[11px] text-[#8a8d91] uppercase tracking-wide font-semibold">
+            <div>#</div>
+            <div>Contributor</div>
+            <div className="text-right">Uploads</div>
+            <div className="text-right">Conversations</div>
+            <div className="text-right">Sales</div>
+            <div className="text-right">Earned</div>
           </div>
-        ) : leaders.length === 0 ? (
-          <div className="text-center py-20 rounded-2xl bg-zinc-900/30 border border-zinc-800/50">
-            <h3 className="text-lg font-semibold text-white mb-2">No contributors yet</h3>
-            <p className="text-sm text-zinc-500">Be the first to upload data and claim the top spot.</p>
-          </div>
-        ) : (
-          <div className="rounded-xl border border-zinc-800/50 overflow-hidden">
-            {/* Header */}
-            <div className="grid grid-cols-6 gap-4 px-5 py-3 bg-zinc-900/50 border-b border-zinc-800/50 text-[10px] text-zinc-500 uppercase tracking-wider font-medium">
-              <div>Rank</div>
-              <div>Contributor</div>
-              <div className="text-right">Uploads</div>
-              <div className="text-right">Conversations</div>
-              <div className="text-right">Sales</div>
-              <div className="text-right">Earned</div>
+
+          {loading ? (
+            <div className="p-12 text-center">
+              <div className="w-8 h-8 border-3 border-[#e4e6eb] border-t-[#1877F2] rounded-full animate-spin mx-auto" />
             </div>
-
-            {leaders.map((leader, i) => (
-              <div key={leader.wallet}
-                className={`grid grid-cols-6 gap-4 px-5 py-4 items-center border-b border-zinc-800/30 hover:bg-zinc-900/30 transition-colors ${
-                  i < 3 ? 'bg-zinc-900/20' : ''
-                }`}>
-                <div className="flex items-center gap-2">
-                  {i < 3 ? (
-                    <div className={`w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold ${
-                      i === 0 ? 'bg-amber-500/20 text-amber-400' :
-                      i === 1 ? 'bg-zinc-400/20 text-zinc-300' :
-                      'bg-orange-500/20 text-orange-400'
-                    }`}>{i + 1}</div>
-                  ) : (
-                    <span className="text-xs text-zinc-500 w-6 text-center">{i + 1}</span>
-                  )}
-                </div>
-                <div>
-                  <div className="text-sm text-white font-medium">{leader.username || 'Anonymous'}</div>
-                  <div className="text-[10px] text-zinc-600 font-mono">{leader.wallet.slice(0, 6)}...{leader.wallet.slice(-4)}</div>
-                </div>
-                <div className="text-sm text-white text-right font-medium">{leader.total_uploads}</div>
-                <div className="text-sm text-white text-right">{leader.total_conversations?.toLocaleString()}</div>
-                <div className="text-sm text-white text-right">{leader.total_sales || 0}</div>
-                <div className="text-sm text-amber-400 text-right font-semibold">{Number(leader.total_earned || 0).toFixed(2)} SOL</div>
+          ) : leaders.length === 0 ? (
+            <div className="p-12 text-center">
+              <p className="text-sm text-[#65676b]">No contributors yet. Be the first to upload.</p>
+            </div>
+          ) : leaders.map((leader, i) => (
+            <div key={leader.wallet}
+              className="grid grid-cols-6 gap-4 px-6 py-4 items-center border-b border-[#f0f2f5] hover:bg-[#f0f2f5] transition-colors">
+              <div>
+                {i < 3 ? (
+                  <div className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold ${
+                    i === 0 ? 'bg-[#fef3c7] text-[#d97706]' :
+                    i === 1 ? 'bg-[#f0f2f5] text-[#65676b]' :
+                    'bg-[#ffedd5] text-[#ea580c]'
+                  }`}>{i + 1}</div>
+                ) : (
+                  <span className="text-sm text-[#8a8d91] pl-2">{i + 1}</span>
+                )}
               </div>
-            ))}
-          </div>
-        )}
+              <div>
+                <div className="text-sm font-semibold text-[#1c1e21]">{leader.username || 'Anonymous'}</div>
+                <div className="text-[11px] text-[#8a8d91] font-mono">{leader.wallet.slice(0, 6)}...{leader.wallet.slice(-4)}</div>
+              </div>
+              <div className="text-sm text-[#1c1e21] text-right font-medium">{leader.total_uploads}</div>
+              <div className="text-sm text-[#1c1e21] text-right">{leader.total_conversations?.toLocaleString()}</div>
+              <div className="text-sm text-[#1c1e21] text-right">{leader.total_sales || 0}</div>
+              <div className="text-sm text-[#1877F2] text-right font-semibold">{Number(leader.total_earned || 0).toFixed(2)} SOL</div>
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   );

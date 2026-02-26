@@ -4,143 +4,67 @@ import { useState } from 'react';
 import Nav from '../../components/Nav';
 
 const ENDPOINTS = [
-  {
-    method: 'GET',
-    path: '/api/data',
-    title: 'Browse Datasets',
-    auth: 'None',
-    desc: 'List all available datasets. Filter by category.',
-    code: `curl https://clork.vercel.app/api/data
-curl https://clork.vercel.app/api/data?category=coding`,
-  },
-  {
-    method: 'GET',
-    path: '/api/data/{id}',
-    title: 'Access Dataset (x402)',
-    auth: 'x402 USDC Payment',
-    desc: 'Purchase and access a dataset via x402 protocol. Payment is automatic with an x402-enabled client.',
-    code: `import { wrapFetch } from "@x402/fetch";
-import { createSvmClient } from "@x402/svm/client";
-
-const svmClient = createSvmClient({ signer: yourWallet });
-const x402Fetch = wrapFetch(fetch, svmClient);
-
-// Payment happens automatically
-const res = await x402Fetch("https://clork.vercel.app/api/data/123");
-const data = await res.json();`,
-  },
-  {
-    method: 'POST',
-    path: '/api/onchain',
-    title: 'Direct SOL Payment',
-    auth: 'Solana Signature',
-    desc: 'Build a purchase transaction for direct SOL payment (non-x402 flow).',
-    code: `// 1. Build purchase transaction
-const res = await fetch("/api/onchain", {
-  method: "POST",
-  headers: { "Content-Type": "application/json" },
-  body: JSON.stringify({
-    action: "purchase",
-    buyerWallet: "YOUR_WALLET",
-    sellerWallet: "SELLER_WALLET",
-    priceSol: 0.1,
-    uploadId: 123
-  })
-});
-// 2. Sign returned transaction with wallet
-// 3. POST to /api/download with txSignature`,
-  },
-  {
-    method: 'POST',
-    path: '/api/upload',
-    title: 'Upload Conversations',
-    auth: 'Wallet Address',
-    desc: 'Upload and parse AI conversation data. Returns hash, stats, and upload ID.',
-    code: `const res = await fetch("/api/upload", {
-  method: "POST",
-  headers: { "Content-Type": "application/json" },
-  body: JSON.stringify({
-    content: "<ChatGPT/Claude export or text>",
-    wallet: "YOUR_SOLANA_WALLET"
-  })
-});`,
-  },
-  {
-    method: 'GET',
-    path: '/api/stats',
-    title: 'Platform Stats',
-    auth: 'None',
-    desc: 'Get aggregate platform statistics.',
-    code: `curl https://clork.vercel.app/api/stats`,
-  },
+  { method: 'GET', path: '/api/data', title: 'Browse Datasets', auth: 'None', desc: 'List all marketplace datasets. Filter by category.', code: `curl https://clork.xyz/api/data\ncurl https://clork.xyz/api/data?category=coding` },
+  { method: 'GET', path: '/api/data/{id}', title: 'Access Dataset (x402)', auth: 'x402 USDC', desc: 'Purchase and access a dataset via the x402 protocol. Payment is automatic with an x402 client.', code: `import { wrapFetch } from "@x402/fetch";\nimport { createSvmClient } from "@x402/svm/client";\n\nconst client = createSvmClient({ signer: wallet });\nconst x402Fetch = wrapFetch(fetch, client);\n\nconst res = await x402Fetch("https://clork.xyz/api/data/123");\n// Payment happens automatically` },
+  { method: 'POST', path: '/api/onchain', title: 'Direct SOL Payment', auth: 'Solana wallet', desc: 'Build a purchase transaction for manual SOL payment flow.', code: `fetch("/api/onchain", {\n  method: "POST",\n  body: JSON.stringify({\n    action: "purchase",\n    buyerWallet: "...",\n    sellerWallet: "...",\n    priceSol: 0.1,\n    uploadId: 123\n  })\n})` },
+  { method: 'POST', path: '/api/upload', title: 'Upload Conversations', auth: 'Wallet address', desc: 'Upload and parse AI conversation data.', code: `fetch("/api/upload", {\n  method: "POST",\n  body: JSON.stringify({\n    content: "<export data>",\n    wallet: "YOUR_WALLET"\n  })\n})` },
+  { method: 'GET', path: '/api/stats', title: 'Platform Stats', auth: 'None', desc: 'Get aggregate platform statistics and leaderboard.', code: `curl https://clork.xyz/api/stats` },
 ];
 
-function MethodBadge({ method }: { method: string }) {
-  const colors = method === 'GET'
-    ? 'bg-green-500/10 text-green-400 border-green-500/20'
-    : 'bg-amber-500/10 text-amber-400 border-amber-500/20';
-  return <span className={`text-[10px] px-2 py-0.5 rounded font-mono font-bold border ${colors}`}>{method}</span>;
-}
-
 export default function ApiDocs() {
-  const [expanded, setExpanded] = useState<number | null>(0);
+  const [open, setOpen] = useState<number | null>(0);
 
   return (
-    <div className="min-h-screen bg-grid">
+    <div className="min-h-screen bg-[#f0f2f5]">
       <Nav />
-      <div className="max-w-4xl mx-auto px-6 pt-24 pb-16">
-        <h1 className="text-3xl font-bold text-white mb-2">API Documentation</h1>
-        <p className="text-sm text-zinc-400 mb-4">
-          Programmatic access to the Clork data marketplace. Browse free, purchase via x402 or direct SOL.
-        </p>
+      <div className="max-w-[900px] mx-auto px-4 pt-20 pb-16">
+        <h1 className="text-2xl font-bold text-[#1c1e21] mb-1">API Documentation</h1>
+        <p className="text-sm text-[#65676b] mb-6">Programmatic access to the Clork marketplace.</p>
 
         {/* x402 highlight */}
-        <div className="rounded-xl bg-gradient-to-r from-green-500/5 to-blue-500/5 border border-green-500/10 p-6 mb-8">
-          <div className="flex items-center gap-2 mb-3">
-            <span className="text-xs px-2.5 py-1 rounded-full bg-green-500/10 text-green-400 font-semibold border border-green-500/20">x402</span>
-            <h2 className="text-sm font-semibold text-white">HTTP-Native Payments</h2>
+        <div className="bg-[#1877F2] rounded-2xl p-6 mb-6 flex flex-col md:flex-row items-center gap-6">
+          <div className="flex-1">
+            <div className="flex items-center gap-2 mb-2">
+              <span className="px-2 py-0.5 bg-white/20 text-white text-xs font-bold rounded">x402</span>
+              <span className="text-white font-semibold">HTTP-native payments</span>
+            </div>
+            <p className="text-sm text-white/80 leading-relaxed">
+              Access any dataset with a single GET request. x402-enabled clients handle USDC payment on Solana automatically. No UI, no manual transactions.
+            </p>
           </div>
-          <p className="text-xs text-zinc-400 leading-relaxed mb-4">
-            Clork supports the x402 open payment protocol. Make a standard GET request to any dataset endpoint — 
-            if you have an x402-enabled client, payment in USDC on Solana happens automatically in-flight. No UI, no manual transactions.
-          </p>
-          <div className="flex gap-3">
-            <a href="https://x402.org" target="_blank" rel="noopener"
-              className="text-xs text-green-400 hover:text-green-300 font-medium transition-colors">x402.org →</a>
-            <a href="https://github.com/coinbase/x402" target="_blank" rel="noopener"
-              className="text-xs text-zinc-500 hover:text-white font-medium transition-colors">GitHub →</a>
+          <div className="flex gap-3 flex-shrink-0">
+            <a href="https://x402.org" target="_blank" rel="noopener" className="px-4 py-2 bg-white text-[#1877F2] text-sm font-semibold rounded-lg hover:bg-white/90 transition-colors">x402.org</a>
+            <a href="https://github.com/coinbase/x402" target="_blank" rel="noopener" className="px-4 py-2 bg-white/20 text-white text-sm font-semibold rounded-lg hover:bg-white/30 transition-colors">GitHub</a>
           </div>
         </div>
 
         {/* Install */}
-        <div className="rounded-xl bg-zinc-900/50 border border-zinc-800/50 p-5 mb-8">
-          <div className="text-xs text-zinc-300 font-medium mb-3">Quick Start</div>
-          <div className="bg-zinc-950 rounded-lg p-4 font-mono text-xs text-green-400">
+        <div className="bg-white rounded-2xl shadow-card p-5 mb-4">
+          <div className="text-sm font-semibold text-[#1c1e21] mb-2">Quick start</div>
+          <div className="bg-[#f0f2f5] rounded-xl p-4 font-mono text-sm text-[#1c1e21]">
             npm install @x402/fetch @x402/svm
           </div>
         </div>
 
         {/* Endpoints */}
-        <div className="space-y-3">
+        <div className="space-y-2">
           {ENDPOINTS.map((ep, i) => (
-            <div key={i} className="rounded-xl bg-zinc-900/50 border border-zinc-800/50 overflow-hidden">
-              <button onClick={() => setExpanded(expanded === i ? null : i)}
-                className="w-full px-5 py-4 flex items-center gap-3 hover:bg-zinc-800/30 transition-colors text-left">
-                <MethodBadge method={ep.method} />
-                <span className="text-sm font-medium text-white flex-1">{ep.title}</span>
-                <span className="text-xs text-zinc-600 font-mono hidden md:block">{ep.path}</span>
-                <svg className={`w-4 h-4 text-zinc-500 transition-transform ${expanded === i ? 'rotate-180' : ''}`}
-                  fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
+            <div key={i} className="bg-white rounded-2xl shadow-card overflow-hidden">
+              <button onClick={() => setOpen(open === i ? null : i)}
+                className="w-full px-5 py-4 flex items-center gap-3 hover:bg-[#f0f2f5] transition-colors text-left">
+                <span className={`text-[10px] px-2 py-0.5 rounded font-mono font-bold ${
+                  ep.method === 'GET' ? 'bg-[#e6f7e9] text-[#31a24c]' : 'bg-[#fff0e6] text-[#f5793a]'
+                }`}>{ep.method}</span>
+                <span className="text-sm font-semibold text-[#1c1e21] flex-1">{ep.title}</span>
+                <span className="text-xs text-[#8a8d91] font-mono hidden md:block">{ep.path}</span>
+                <svg className={`w-4 h-4 text-[#8a8d91] transition-transform ${open === i ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
               </button>
-
-              {expanded === i && (
-                <div className="px-5 pb-5 border-t border-zinc-800/30">
-                  <div className="flex items-center gap-4 py-3 text-xs">
-                    <span className="text-zinc-500">Auth: <span className="text-zinc-300">{ep.auth}</span></span>
-                  </div>
-                  <p className="text-xs text-zinc-400 mb-4">{ep.desc}</p>
-                  <div className="bg-zinc-950 rounded-lg p-4 overflow-x-auto">
-                    <pre className="text-[11px] text-green-400 font-mono whitespace-pre leading-relaxed">{ep.code}</pre>
+              {open === i && (
+                <div className="px-5 pb-5 border-t border-[#e4e6eb]">
+                  <div className="py-2 text-xs text-[#8a8d91]">Auth: <span className="text-[#1c1e21] font-medium">{ep.auth}</span></div>
+                  <p className="text-sm text-[#65676b] mb-3">{ep.desc}</p>
+                  <div className="bg-[#1c1e21] rounded-xl p-4 overflow-x-auto">
+                    <pre className="text-[12px] text-[#e4e6eb] font-mono whitespace-pre leading-relaxed">{ep.code}</pre>
                   </div>
                 </div>
               )}
@@ -149,22 +73,22 @@ export default function ApiDocs() {
         </div>
 
         {/* Payment methods */}
-        <div className="mt-8 rounded-xl bg-zinc-900/50 border border-zinc-800/50 p-6">
-          <h3 className="text-sm font-semibold text-white mb-4">Payment Methods</h3>
+        <div className="bg-white rounded-2xl shadow-card p-6 mt-4">
+          <h3 className="text-sm font-bold text-[#1c1e21] mb-4">Payment methods</h3>
           <div className="grid md:grid-cols-2 gap-4">
-            <div className="bg-zinc-950 rounded-lg p-4">
+            <div className="bg-[#f0f2f5] rounded-xl p-4">
               <div className="flex items-center gap-2 mb-2">
-                <span className="text-[10px] px-2 py-0.5 rounded-full bg-green-500/10 text-green-400 font-bold border border-green-500/20">x402</span>
-                <span className="text-xs font-medium text-white">USDC on Solana</span>
+                <span className="px-2 py-0.5 bg-[#e7f3ff] text-[#1877F2] text-xs font-bold rounded">x402</span>
+                <span className="text-sm font-semibold text-[#1c1e21]">USDC on Solana</span>
               </div>
-              <p className="text-[11px] text-zinc-500 leading-relaxed">Automatic, in-flight payment via x402 protocol. Best for programmatic access and API integrations.</p>
+              <p className="text-xs text-[#65676b]">Automatic in-flight payment. Best for programmatic access.</p>
             </div>
-            <div className="bg-zinc-950 rounded-lg p-4">
+            <div className="bg-[#f0f2f5] rounded-xl p-4">
               <div className="flex items-center gap-2 mb-2">
-                <span className="text-[10px] px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-400 font-bold border border-amber-500/20">SOL</span>
-                <span className="text-xs font-medium text-white">Direct SOL Payment</span>
+                <span className="px-2 py-0.5 bg-[#e6f7e9] text-[#31a24c] text-xs font-bold rounded">SOL</span>
+                <span className="text-sm font-semibold text-[#1c1e21]">Direct payment</span>
               </div>
-              <p className="text-[11px] text-zinc-500 leading-relaxed">Connect Phantom wallet on the marketplace. 95% to seller, 5% platform fee. Best for manual purchases.</p>
+              <p className="text-xs text-[#65676b]">Phantom wallet on marketplace. 95% to seller, 5% fee.</p>
             </div>
           </div>
         </div>
