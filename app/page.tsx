@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import Nav from '../components/Nav';
 
 function Counter({ end, suffix = '' }: { end: number; suffix?: string }) {
@@ -191,9 +192,7 @@ export default function Home() {
       <section className="bg-white py-20 px-6">
         <div className="mx-auto max-w-5xl">
           <div className="rounded-2xl bg-[#1877F2] p-10 flex flex-col md:flex-row items-center gap-8 text-center md:text-left animate-scale-in">
-            <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-full bg-white/20">
-              <span className="text-3xl font-black text-white">c</span>
-            </div>
+            <Image src="/logo.png" alt="Clork" width={64} height={64} className="h-16 w-16 shrink-0" />
             <div className="flex-1">
               <h3 className="text-xl font-bold text-white mb-2">Meet Clork</h3>
               <p className="text-sm text-white/80 leading-relaxed max-w-lg">
@@ -252,9 +251,7 @@ export default function Home() {
       <footer className="border-t border-gray-100 bg-white py-8 px-6">
         <div className="mx-auto max-w-5xl flex flex-col md:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-2">
-            <div className="flex h-6 w-6 items-center justify-center rounded bg-[#1877F2]">
-              <span className="text-[10px] font-black text-white">c</span>
-            </div>
+            <Image src="/logo.png" alt="Clork" width={24} height={24} className="h-6 w-6" />
             <span className="text-xs text-[#8a8d91]">Clork &middot; AI Data Marketplace</span>
           </div>
           <p className="text-[11px] text-[#8a8d91] text-center max-w-lg">

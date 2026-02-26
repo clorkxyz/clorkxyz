@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { useWallet } from '../app/providers';
 
@@ -19,10 +20,8 @@ export default function Nav() {
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 bg-white shadow-nav">
       <div className="mx-auto max-w-5xl px-6 flex h-14 items-center justify-between">
-        <Link href="/" className="flex items-center gap-2.5 shrink-0">
-          <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-[#1877F2]">
-            <span className="text-base font-black text-white">c</span>
-          </div>
+        <Link href="/" className="flex items-center gap-2 shrink-0">
+          <Image src="/logo.png" alt="Clork" width={32} height={32} className="h-8 w-8" />
           <span className="text-lg font-bold text-[#1c1e21] hidden sm:block">clork</span>
         </Link>
 
