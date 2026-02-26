@@ -121,18 +121,22 @@ export default function Home() {
               Every major LLM — GPT-4, Claude, Gemini, LLaMA — is built on human conversation data.
               Without your inputs, corrections, and feedback, these models wouldn&apos;t exist. Here&apos;s the scale of what&apos;s at stake.
             </p>
+            <p className="mt-2 text-xs text-[#8a8d91] max-w-xl mx-auto">
+              Only data you explicitly choose to upload is ever listed or sold. You keep full ownership and can remove it at any time.
+            </p>
           </div>
 
           <div className="grid md:grid-cols-3 gap-5 mb-10">
             {[
-              { stat: '$100B+', label: 'AI industry revenue built on user-generated data', desc: 'OpenAI, Anthropic, Google, and Meta collectively generate over $100 billion from models trained on conversations like yours.' },
-              { stat: '$0', label: 'What you got paid for your training data', desc: 'Every prompt you\'ve written, every correction you\'ve made, every preference you\'ve expressed — all captured and used for free.' },
-              { stat: '15T+', label: 'Tokens in LLM training datasets', desc: 'Modern LLMs train on trillions of tokens. A significant and growing portion comes directly from user conversations with AI assistants.' },
+              { stat: '$100B+', label: 'Est. AI industry revenue (2024)', desc: 'OpenAI, Anthropic, Google, and Meta generate an estimated $100B+ annually from models built on user-generated data.', source: 'Stanford AI Index 2024' },
+              { stat: '$0', label: 'What most users received', desc: 'Every prompt, correction, and preference signal you\'ve provided has been captured and used to improve models — typically with no compensation to the creator.' },
+              { stat: 'Trillions', label: 'Tokens used in LLM training', desc: 'Modern foundation models train on trillions of tokens. An increasing share comes from user conversations with AI assistants, not just web crawls.', source: 'Epoch AI research' },
             ].map((s, i) => (
               <div key={i} className="rounded-2xl bg-white p-7 shadow-card animate-fade-in-up" style={{ animationDelay: `${i * 150}ms` }}>
                 <div className="text-3xl font-extrabold text-[#1877F2] mb-2">{s.stat}</div>
                 <div className="text-sm font-semibold text-[#1c1e21] mb-2">{s.label}</div>
                 <p className="text-sm text-[#65676b] leading-relaxed">{s.desc}</p>
+                {'source' in s && s.source && <p className="mt-2 text-[10px] text-[#8a8d91]">Source: {s.source}</p>}
               </div>
             ))}
           </div>
@@ -142,8 +146,8 @@ export default function Home() {
             <div className="grid md:grid-cols-2 gap-6">
               {[
                 { title: 'RLHF depends on human preferences', desc: 'Reinforcement Learning from Human Feedback — the technique that made ChatGPT useful — requires massive volumes of human preference data. Your thumbs-up, edits, and rephrases are the signal.' },
-                { title: 'Synthetic data has limits', desc: 'AI-generated training data degrades model quality over time (model collapse). Real human conversations are irreplaceable for maintaining diversity and quality in training sets.' },
-                { title: 'Domain expertise is scarce', desc: 'Conversations about medicine, law, finance, and specialized coding are extremely valuable because domain experts are rare. Your professional AI conversations are worth more than you think.' },
+                { title: 'Synthetic data has limits', desc: 'AI-generated training data degrades model quality over time — a phenomenon researchers call "model collapse." Authentic human conversations are irreplaceable for maintaining diversity and quality.' },
+                { title: 'Expert knowledge is scarce', desc: 'De-identified, consented datasets from regulated domains — coding, finance, engineering — are high-value because domain experts are rare. These conversations contain reasoning patterns that synthetic data can\'t replicate.' },
                 { title: 'The data moat is the real moat', desc: 'OpenAI\'s advantage isn\'t just their models — it\'s the billions of conversations they\'ve collected. Whoever controls the best data controls the best AI. You should control yours.' },
               ].map((item, i) => (
                 <div key={i} className="animate-fade-in-up" style={{ animationDelay: `${(i + 4) * 100}ms` }}>
@@ -199,11 +203,11 @@ export default function Home() {
               <h3 className="text-lg font-semibold text-[#1c1e21] mb-2">Earn by contributing</h3>
               <p className="text-sm text-[#65676b] leading-relaxed mb-4">
                 Every dataset you upload and list earns $CLORK rewards proportional to the quality and volume of your data.
-                More conversations, rarer categories (medical, legal, domain-specific), and verified on-chain hashes earn higher rewards.
+                More conversations, rarer categories (specialized domains, expert knowledge), and verified on-chain hashes earn higher rewards.
               </p>
               <ul className="space-y-2 text-sm text-[#65676b]">
                 <li className="flex items-start gap-2"><span className="text-[#1877F2] font-bold mt-0.5">+</span> Upload reward — tokens for every dataset registered on-chain</li>
-                <li className="flex items-start gap-2"><span className="text-[#1877F2] font-bold mt-0.5">+</span> Quality bonus — higher rewards for rare/specialized categories</li>
+                <li className="flex items-start gap-2"><span className="text-[#1877F2] font-bold mt-0.5">+</span> Quality bonus — higher rewards for de-identified expert and specialized categories</li>
                 <li className="flex items-start gap-2"><span className="text-[#1877F2] font-bold mt-0.5">+</span> Sale commission — bonus $CLORK on top of SOL/USDC sale revenue</li>
               </ul>
             </div>
