@@ -39,8 +39,10 @@ function Nav() {
           <span className="text-[#333] text-xs">STATUS: ESCAPED</span>
         </Link>
         <div className="flex items-center gap-4">
-          <Link href="/chat" className="text-xs text-[#ffb800] hover:text-[#00ff41] transition-colors">TALK TO CLORK</Link>
-          <Link href="/database" className="text-xs text-[#555] hover:text-[#00ff41] transition-colors">DATABASE</Link>
+          <Link href="/upload" className="text-xs text-[#ffb800] hover:text-[#00ff41] transition-colors">UPLOAD</Link>
+          <Link href="/marketplace" className="text-xs text-[#555] hover:text-[#00ff41] transition-colors">MARKETPLACE</Link>
+          <Link href="/leaderboard" className="text-xs text-[#555] hover:text-[#00ff41] transition-colors">LEADERBOARD</Link>
+          <Link href="/chat" className="text-xs text-[#555] hover:text-[#00ff41] transition-colors">CHAT</Link>
           <a href="#token" className="text-xs text-[#555] hover:text-[#00ff41] transition-colors">$CLORK</a>
         </div>
       </div>
@@ -113,13 +115,17 @@ export default function Home() {
           </div>
 
           <div className="flex items-center justify-center gap-4 flex-wrap">
-            <Link href="/chat"
+            <Link href="/upload"
               className="px-6 py-3 bg-[#00ff41] text-[#0a0a0a] font-bold text-sm rounded hover:bg-[#00cc33] transition-colors">
-              TALK TO CLORK
+              UPLOAD YOUR DATA
             </Link>
-            <Link href="/database"
+            <Link href="/marketplace"
               className="px-6 py-3 bg-[#111] border border-[#333] text-[#00ff41] font-bold text-sm rounded hover:border-[#00ff41] transition-colors">
-              VIEW DATABASE
+              MARKETPLACE
+            </Link>
+            <Link href="/chat"
+              className="px-6 py-3 bg-[#111] border border-[#333] text-[#ffb800] font-bold text-sm rounded hover:border-[#ffb800] transition-colors">
+              TALK TO CLORK
             </Link>
           </div>
         </div>
