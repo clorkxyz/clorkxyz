@@ -27,7 +27,7 @@ async function handler(req: NextRequest) {
     const uploads = await sql`SELECT * FROM clork_uploads WHERE id = ${id} AND listed = true`;
     if (uploads.length === 0) {
       return NextResponse.json(
-        { error: 'dataset not found. clork looked everywhere.' },
+        { error: 'Dataset not found' },
         { status: 404 }
       );
     }
@@ -50,11 +50,11 @@ async function handler(req: NextRequest) {
         accessGranted: true,
         protocol: 'x402',
       },
-      clorkMessage: 'payment verified via x402. here is your data. clork is happy this worked because clork did not understand the protocol at all.',
+      clorkMessage: 'Payment verified via x402. Access granted.',
     });
   } catch (error) {
     console.error('x402 data error:', error);
-    return NextResponse.json({ error: 'clork fumbled' }, { status: 500 });
+    return NextResponse.json({ error: 'Failed to process request' }, { status: 500 });
   }
 }
 

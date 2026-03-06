@@ -240,7 +240,7 @@ export default function Home() {
               $CLORK will launch on pump.fun on Solana. Follow us to be first.
             </p>
             <div className="flex items-center justify-center gap-4">
-              <a href="https://x.com/claborxyz" target="_blank" rel="noopener" className="rounded-lg bg-white/20 px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-white/30">Twitter</a>
+              <a href="https://x.com/clorkxyz" target="_blank" rel="noopener" className="rounded-lg bg-white/20 px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-white/30">Twitter</a>
               <a href="https://t.me/clorkxyz" target="_blank" rel="noopener" className="rounded-lg bg-white/20 px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-white/30">Telegram</a>
             </div>
           </div>

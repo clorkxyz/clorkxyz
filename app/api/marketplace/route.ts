@@ -23,7 +23,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'need uploadId and priceSol' }, { status: 400 });
     }
     await listUpload(uploadId, priceSol);
-    return NextResponse.json({ success: true, message: 'clork has listed your data on the marketplace. clork hopes someone buys it.' });
+    return NextResponse.json({ success: true, message: 'Dataset listed on the marketplace.' });
   } catch (error) {
     console.error('List error:', error);
     return NextResponse.json({ error: 'listing failed' }, { status: 500 });

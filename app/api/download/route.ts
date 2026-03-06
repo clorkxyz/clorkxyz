@@ -54,10 +54,10 @@ export async function POST(req: Request) {
         downloadUrl: null,
         accessGranted: true,
       },
-      clorkMessage: `purchase confirmed. clork has recorded tx ${txSignature.slice(0, 12)}... on the ledger. you now own access to this dataset. clork is proud of this transaction.`,
+      clorkMessage: `Purchase confirmed. Transaction ${txSignature.slice(0, 12)}... recorded. Access granted.`,
     });
   } catch (error) {
     console.error('Download error:', error);
-    return NextResponse.json({ error: 'clork fumbled the delivery' }, { status: 500 });
+    return NextResponse.json({ error: 'Download failed' }, { status: 500 });
   }
 }

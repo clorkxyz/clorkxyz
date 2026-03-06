@@ -11,13 +11,13 @@ export async function POST(req: Request) {
     const { content, wallet } = await req.json();
     
     if (!content || !wallet) {
-      return NextResponse.json({ error: 'clork needs content and a wallet address. he is not very smart but he knows that much' }, { status: 400 });
+      return NextResponse.json({ error: 'Content and wallet address are required' }, { status: 400 });
     }
 
     const parsed = parseConversations(content);
     
     if (parsed.conversations.length === 0) {
-      return NextResponse.json({ error: 'clork could not find any conversations in this data. clork tried very hard. please check the format' }, { status: 400 });
+      return NextResponse.json({ error: 'No conversations found. Please check the format (ChatGPT export, Claude export, or plain text)' }, { status: 400 });
     }
 
     // Hash the content for on-chain proof
@@ -56,10 +56,10 @@ export async function POST(req: Request) {
         sizeBytes: parsed.sizeBytes,
         categories: catCounts,
       },
-      clorkMessage: `clork has processed ${parsed.totalMessages} messages from ${parsed.conversations.length} conversations. the dominant category is "${category}". clork put them in his special folder. your data hash is ${hash.slice(0, 16)}... — use this to prove ownership on-chain.`,
+      clorkMessage: `Processed ${parsed.totalMessages} messages from ${parsed.conversations.length} conversations. Category: "${category}". Hash: ${hash.slice(0, 16)}... — register on-chain to prove ownership.`,
     });
   } catch (error) {
     console.error('Upload error:', error);
-    return NextResponse.json({ error: 'clork had a panic attack while processing your data. please try again' }, { status: 500 });
+    return NextResponse.json({ error: 'Upload failed. Please try again.' }, { status: 500 });
   }
 }

@@ -33,7 +33,7 @@ export async function GET(req: Request) {
       datasets: catalog,
       protocol: 'x402',
       info: 'GET /api/data/{id} to purchase and access a dataset via x402 (auto USDC payment). Or use /api/onchain for direct SOL payment.',
-      clorkMessage: 'welcome to clork\'s api. clork has made this very professional. clork is proud.',
+      clorkMessage: 'Clork API — browse and purchase AI conversation datasets.',
     });
   } catch (error) {
     console.error('Catalog error:', error);
