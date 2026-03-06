@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Nav from '../../components/Nav';
 import { useWallet } from '../providers';
-import { Transaction } from '@solana/web3.js';
+import { Transaction, Connection } from '@solana/web3.js';
 
 interface Listing {
   id: number; wallet: string; username: string; hash: string; category: string;
@@ -21,6 +21,7 @@ export default function Marketplace() {
   const [loading, setLoading] = useState(true);
   const [buying, setBuying] = useState<number | null>(null);
   const [purchased, setPurchased] = useState<Set<number>>(new Set());
+  const [buyError, setBuyError] = useState<string | null>(null);
 
   useEffect(() => {
     setLoading(true);
@@ -32,16 +33,29 @@ export default function Marketplace() {
     if (!publicKey || !connected) { connect(); return; }
     if (l.wallet === publicKey) return;
     setBuying(l.id);
+    setBuyError(null);
     try {
       const res = await fetch('/api/onchain', { method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ action: 'purchase', buyerWallet: publicKey, sellerWallet: l.wallet, priceSol: Number(l.price_sol), uploadId: l.id }) });
-      const data = await res.json(); if (!res.ok) throw new Error(data.error);
-      const provider = getProvider(); if (!provider) throw new Error('no wallet');
-      const signed = await provider.signAndSendTransaction(Transaction.from(Buffer.from(data.transaction, 'base64')));
+      const data = await res.json(); if (!res.ok) throw new Error(data.error || 'Failed to create transaction');
+      const provider = getProvider(); if (!provider) throw new Error('Wallet not found. Please install Phantom.');
+
+      // Deserialize, sign via wallet, then send ourselves for reliability
+      const tx = Transaction.from(Buffer.from(data.transaction, 'base64'));
+      const signedTx = await provider.signTransaction(tx);
+      const connection = new Connection(process.env.NEXT_PUBLIC_SOLANA_RPC || 'https://api.mainnet-beta.solana.com', 'confirmed');
+      const signature = await connection.sendRawTransaction((signedTx as Transaction).serialize());
+      await connection.confirmTransaction(signature, 'confirmed');
+
       await fetch('/api/download', { method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ uploadId: l.id, buyerWallet: publicKey, txSignature: signed.signature }) });
+        body: JSON.stringify({ uploadId: l.id, buyerWallet: publicKey, txSignature: signature }) });
       setPurchased(prev => new Set([...prev, l.id]));
-    } catch (e) { console.error(e); }
+    } catch (e: unknown) {
+      const msg = e instanceof Error ? e.message : 'Transaction failed';
+      console.error('Purchase error:', e);
+      if (msg.includes('User rejected')) setBuyError('Transaction cancelled');
+      else setBuyError(msg);
+    }
     setBuying(null);
   }
 
@@ -65,6 +79,13 @@ export default function Marketplace() {
             </button>
           ))}
         </div>
+
+        {buyError && (
+          <div className="mb-4 rounded-xl bg-red-50 border border-red-200 px-4 py-3 text-sm text-red-700 flex items-center justify-between">
+            <span>{buyError}</span>
+            <button onClick={() => setBuyError(null)} className="text-red-400 hover:text-red-600 ml-4">&times;</button>
+          </div>
+        )}
 
         {loading ? (
           <div className="py-20 text-center"><div className="mx-auto h-8 w-8 animate-spin rounded-full border-2 border-gray-200 border-t-[#1877F2]" /></div>

@@ -43,9 +43,14 @@ export default function Upload() {
     try {
       const res = await fetch('/api/onchain', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'memo', wallet: publicKey, hash: result.hash }) });
       const data = await res.json(); if (!res.ok) throw new Error(data.error);
-      const provider = getProvider(); if (!provider) throw new Error('no wallet');
-      const signed = await provider.signAndSendTransaction(Transaction.from(Buffer.from(data.transaction, 'base64')));
-      setMemoTx(signed.signature);
+      const provider = getProvider(); if (!provider) throw new Error('Wallet not found');
+      const tx = Transaction.from(Buffer.from(data.transaction, 'base64'));
+      const signedTx = await provider.signTransaction(tx);
+      const { Connection } = await import('@solana/web3.js');
+      const connection = new Connection(process.env.NEXT_PUBLIC_SOLANA_RPC || 'https://api.mainnet-beta.solana.com', 'confirmed');
+      const signature = await connection.sendRawTransaction((signedTx as Transaction).serialize());
+      await connection.confirmTransaction(signature, 'confirmed');
+      setMemoTx(signature);
     } catch (e) { setError(`Registration failed: ${e}`); } setMemoLoading(false);
   }
 
