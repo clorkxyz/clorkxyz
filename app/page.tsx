@@ -333,6 +333,24 @@ export default function Home() {
         </div>
       </section>
 
+      {/* Risk Warning */}
+      <section className="bg-red-50 border-y border-red-200 py-8 px-6">
+        <div className="mx-auto max-w-3xl">
+          <div className="flex items-start gap-3">
+            <svg className="h-6 w-6 text-red-500 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4.5c-.77-.833-2.694-.833-3.464 0L3.34 16.5c-.77.833.192 2.5 1.732 2.5z" /></svg>
+            <div>
+              <h3 className="text-sm font-bold text-red-800 mb-1">Risk Warning</h3>
+              <p className="text-xs text-red-700 leading-relaxed">
+                <strong>$CLORK is an experimental token with no guaranteed value.</strong> The token price can drop to zero at any time. 
+                Do not invest money you cannot afford to lose. There is no team obligation to maintain token value, provide liquidity, 
+                or buy back tokens. This is not financial advice. You are solely responsible for your own decisions. 
+                By using this platform, you acknowledge that you may lose 100% of any funds used to purchase $CLORK tokens.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* CTA */}
       <section className="bg-white py-20 px-6">
         <div className="mx-auto max-w-3xl text-center animate-fade-in-up">
