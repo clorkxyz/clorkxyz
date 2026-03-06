@@ -5,7 +5,7 @@ export const dynamic = 'force-dynamic';
 
 const MEMO_PROGRAM_ID = new PublicKey('MemoSq4gqABAXKb96qnH8TysNcWxMyWCqXgDLGmfcHr');
 const RPC_URL = process.env.SOLANA_RPC_URL || 'https://api.mainnet-beta.solana.com';
-const TREASURY_WALLET = process.env.CLORK_TREASURY_WALLET || '';
+const TREASURY_WALLET = process.env.CLORK_TREASURY_WALLET || '5nPKrqDfG9qX6K1mDteeSLVUeB52iTKs2RAXzNydwBeH';
 
 // Build a memo transaction to register data hash on-chain
 export async function POST(req: Request) {
