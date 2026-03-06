@@ -40,7 +40,14 @@ export default function Providers({ children }: { children: ReactNode }) {
   const connect = useCallback(async () => {
     const phantom = getProvider();
     if (!phantom?.isPhantom) {
-      window.open('https://phantom.app/', '_blank');
+      // Check if mobile — use Phantom deeplink
+      const isMobile = /Android|iPhone|iPad/i.test(navigator.userAgent);
+      if (isMobile) {
+        const url = encodeURIComponent(window.location.href);
+        window.location.href = `https://phantom.app/ul/browse/${url}?ref=${url}`;
+      } else {
+        window.open('https://phantom.app/', '_blank');
+      }
       return;
     }
     try {

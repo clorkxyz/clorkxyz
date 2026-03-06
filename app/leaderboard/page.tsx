@@ -23,7 +23,8 @@ export default function Leaderboard() {
           <p className="mt-1 text-sm text-[#65676b]">Top contributors by uploads, data volume, and earnings.</p>
         </div>
 
-        <div className="overflow-hidden rounded-2xl bg-white shadow-card animate-fade-in-up delay-200">
+        {/* Desktop table */}
+        <div className="hidden md:block overflow-hidden rounded-2xl bg-white shadow-card animate-fade-in-up delay-200">
           <div className="grid grid-cols-6 gap-4 border-b border-gray-100 px-6 py-3 text-[11px] font-semibold uppercase tracking-wide text-[#8a8d91]">
             <div>#</div><div>Contributor</div><div className="text-right">Uploads</div><div className="text-right">Conversations</div><div className="text-right">Sales</div><div className="text-right">Earned</div>
           </div>
@@ -33,7 +34,7 @@ export default function Leaderboard() {
           ) : leaders.length === 0 ? (
             <div className="py-16 text-center text-sm text-[#65676b]">No contributors yet. Be the first to upload.</div>
           ) : leaders.map((l, i) => (
-            <div key={l.wallet} className="grid grid-cols-6 items-center gap-4 border-b border-gray-50 px-6 py-4 transition-colors hover:bg-gray-50" style={{ animationDelay: `${i * 60}ms` }}>
+            <div key={l.wallet} className="grid grid-cols-6 items-center gap-4 border-b border-gray-50 px-6 py-4 transition-colors hover:bg-gray-50">
               <div>
                 {i < 3 ? (
                   <div className={`flex h-7 w-7 items-center justify-center rounded-full text-xs font-bold ${i === 0 ? 'bg-amber-50 text-amber-600' : i === 1 ? 'bg-gray-100 text-gray-500' : 'bg-orange-50 text-orange-500'}`}>{i+1}</div>
@@ -44,9 +45,45 @@ export default function Leaderboard() {
                 <div className="font-mono text-[11px] text-[#8a8d91]">{l.wallet.slice(0,6)}...{l.wallet.slice(-4)}</div>
               </div>
               <div className="text-right text-sm font-medium text-[#1c1e21]">{l.total_uploads}</div>
-              <div className="text-right text-sm text-[#1c1e21]">{l.total_conversations?.toLocaleString()}</div>
+              <div className="text-right text-sm text-[#1c1e21]">{(l.total_conversations || l.total_messages || 0).toLocaleString()}</div>
               <div className="text-right text-sm text-[#1c1e21]">{l.total_sales || 0}</div>
               <div className="text-right text-sm font-semibold text-[#1877F2]">{Number(l.total_earned || 0).toFixed(2)} SOL</div>
+            </div>
+          ))}
+        </div>
+
+        {/* Mobile cards */}
+        <div className="md:hidden space-y-3 animate-fade-in-up delay-200">
+          {loading ? (
+            <div className="py-16 text-center"><div className="mx-auto h-8 w-8 animate-spin rounded-full border-2 border-gray-200 border-t-[#1877F2]" /></div>
+          ) : leaders.length === 0 ? (
+            <div className="rounded-2xl bg-white p-12 text-center shadow-card text-sm text-[#65676b]">No contributors yet. Be the first to upload.</div>
+          ) : leaders.map((l, i) => (
+            <div key={l.wallet} className="rounded-2xl bg-white p-5 shadow-card">
+              <div className="flex items-center gap-3 mb-3">
+                <div className={`flex h-8 w-8 items-center justify-center rounded-full text-xs font-bold ${i === 0 ? 'bg-amber-50 text-amber-600' : i === 1 ? 'bg-gray-100 text-gray-500' : i === 2 ? 'bg-orange-50 text-orange-500' : 'bg-gray-50 text-[#8a8d91]'}`}>{i+1}</div>
+                <div className="flex-1 min-w-0">
+                  <div className="text-sm font-semibold text-[#1c1e21]">{l.username || 'Anonymous'}</div>
+                  <div className="font-mono text-[11px] text-[#8a8d91]">{l.wallet.slice(0,6)}...{l.wallet.slice(-4)}</div>
+                </div>
+                <div className="text-right">
+                  <div className="text-sm font-semibold text-[#1877F2]">{Number(l.total_earned || 0).toFixed(2)} SOL</div>
+                </div>
+              </div>
+              <div className="grid grid-cols-3 gap-3 text-center">
+                <div className="rounded-lg bg-gray-50 py-2">
+                  <div className="text-xs text-[#8a8d91]">Uploads</div>
+                  <div className="text-sm font-semibold text-[#1c1e21]">{l.total_uploads}</div>
+                </div>
+                <div className="rounded-lg bg-gray-50 py-2">
+                  <div className="text-xs text-[#8a8d91]">Messages</div>
+                  <div className="text-sm font-semibold text-[#1c1e21]">{(l.total_conversations || l.total_messages || 0).toLocaleString()}</div>
+                </div>
+                <div className="rounded-lg bg-gray-50 py-2">
+                  <div className="text-xs text-[#8a8d91]">Sales</div>
+                  <div className="text-sm font-semibold text-[#1c1e21]">{l.total_sales || 0}</div>
+                </div>
+              </div>
             </div>
           ))}
         </div>

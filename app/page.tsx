@@ -240,53 +240,74 @@ export default function Home() {
               $CLORK will launch on pump.fun on Solana. Follow us to be first.
             </p>
             <div className="flex items-center justify-center gap-4">
-              {['Twitter', 'Telegram'].map(name => (
-                <a key={name} href="#" className="rounded-lg bg-white/20 px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-white/30">{name}</a>
-              ))}
+              <a href="https://x.com/claborxyz" target="_blank" rel="noopener" className="rounded-lg bg-white/20 px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-white/30">Twitter</a>
+              <a href="https://t.me/clorkxyz" target="_blank" rel="noopener" className="rounded-lg bg-white/20 px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-white/30">Telegram</a>
             </div>
           </div>
         </div>
       </section>
 
-      {/* x402 + Solana tech */}
+      {/* Built on real infrastructure */}
       <section className="bg-white py-20 px-6">
-        <div className="mx-auto max-w-5xl grid md:grid-cols-2 gap-5">
-          <div className="rounded-2xl bg-gray-50 p-7 animate-fade-in-up delay-100">
-            <div className="flex items-center gap-2 mb-3">
-              <span className="rounded bg-blue-50 px-2.5 py-1 text-xs font-bold text-[#1877F2]">x402</span>
-              <span className="text-base font-semibold text-[#1c1e21]">Programmatic access</span>
+        <div className="mx-auto max-w-5xl">
+          <div className="text-center mb-14 animate-fade-in">
+            <h2 className="text-3xl font-bold text-[#1c1e21]">Built on real infrastructure</h2>
+            <p className="mt-2 text-[#65676b]">Not a whitepaper. Not a concept. Clork actually works — right now.</p>
+          </div>
+          <div className="grid md:grid-cols-3 gap-5 mb-8">
+            <div className="rounded-2xl bg-gray-50 p-7 animate-fade-in-up delay-100">
+              <div className="flex items-center gap-2 mb-3">
+                <span className="rounded bg-blue-50 px-2.5 py-1 text-xs font-bold text-[#1877F2]">x402</span>
+                <span className="text-sm font-semibold text-[#1c1e21]">Coinbase x402 Protocol</span>
+              </div>
+              <p className="text-sm text-[#65676b] leading-relaxed">
+                AI companies access datasets with a single HTTP request. USDC payment is handled automatically in-flight — no accounts, no API keys. Coinbase&apos;s open protocol, not our own.
+              </p>
             </div>
-            <p className="text-sm text-[#65676b] leading-relaxed mb-5">
-              AI companies can access any dataset with a single HTTP request. Payment in USDC is handled automatically in-flight via Coinbase&apos;s open x402 protocol.
-              No accounts. No API keys. Just pay and receive data.
-            </p>
-            <div className="rounded-xl bg-gray-900 p-4 overflow-x-auto">
-              <code className="text-xs text-gray-100 font-mono leading-relaxed block whitespace-pre">{`const res = await x402Fetch(
+            <div className="rounded-2xl bg-gray-50 p-7 animate-fade-in-up delay-200">
+              <div className="flex items-center gap-2 mb-3">
+                <span className="rounded bg-green-50 px-2.5 py-1 text-xs font-bold text-green-600">Solana</span>
+                <span className="text-sm font-semibold text-[#1c1e21]">On-chain proof of ownership</span>
+              </div>
+              <p className="text-sm text-[#65676b] leading-relaxed">
+                Every dataset gets a SHA-256 hash written to Solana via the Memo Program. Immutable, timestamped, publicly verifiable. Sub-second finality, under $0.01 per registration.
+              </p>
+            </div>
+            <div className="rounded-2xl bg-gray-50 p-7 animate-fade-in-up delay-300">
+              <div className="flex items-center gap-2 mb-3">
+                <span className="rounded bg-purple-50 px-2.5 py-1 text-xs font-bold text-purple-600">Claude</span>
+                <span className="text-sm font-semibold text-[#1c1e21]">AI-powered parsing</span>
+              </div>
+              <p className="text-sm text-[#65676b] leading-relaxed">
+                Clork uses Anthropic&apos;s Claude to parse, categorize, and extract metadata from uploaded conversations. The same AI that generates the data helps us catalog it.
+              </p>
+            </div>
+          </div>
+          <div className="grid md:grid-cols-2 gap-5">
+            <div className="rounded-2xl bg-gray-50 p-7 animate-fade-in-up delay-400">
+              <div className="mb-3 text-sm font-semibold text-[#1c1e21]">Programmatic access</div>
+              <div className="rounded-xl bg-gray-900 p-4 overflow-x-auto">
+                <code className="text-xs text-gray-100 font-mono leading-relaxed block whitespace-pre">{`const res = await x402Fetch(
   "https://clork.xyz/api/data/123"
 );
 // USDC payment → dataset returned`}</code>
+              </div>
             </div>
-          </div>
-          <div className="rounded-2xl bg-gray-50 p-7 animate-fade-in-up delay-300">
-            <div className="flex items-center gap-2 mb-3">
-              <span className="rounded bg-green-50 px-2.5 py-1 text-xs font-bold text-green-600">Solana</span>
-              <span className="text-base font-semibold text-[#1c1e21]">Built for speed and proof</span>
-            </div>
-            <p className="text-sm text-[#65676b] leading-relaxed mb-5">
-              Data hashes registered on Solana via the Memo Program. Sub-second finality. Negligible fees.
-              Every upload, sale, and proof is publicly verifiable. The blockchain is the receipt.
-            </p>
-            <div className="flex items-center justify-around pt-2">
-              {[
-                { value: '~400ms', label: 'Finality' },
-                { value: '<$0.01', label: 'Hash cost' },
-                { value: '95%', label: 'Seller keeps' },
-              ].map(s => (
-                <div key={s.label} className="text-center">
-                  <div className="text-xl font-bold text-[#1c1e21]">{s.value}</div>
-                  <div className="mt-0.5 text-xs text-[#8a8d91]">{s.label}</div>
-                </div>
-              ))}
+            <div className="rounded-2xl bg-gray-50 p-7 animate-fade-in-up delay-500">
+              <div className="mb-3 text-sm font-semibold text-[#1c1e21]">Platform stats</div>
+              <div className="flex items-center justify-around pt-2">
+                {[
+                  { value: '~400ms', label: 'Finality' },
+                  { value: '<$0.01', label: 'Hash cost' },
+                  { value: '95%', label: 'Seller keeps' },
+                  { value: '5%', label: 'Platform fee' },
+                ].map(s => (
+                  <div key={s.label} className="text-center">
+                    <div className="text-xl font-bold text-[#1c1e21]">{s.value}</div>
+                    <div className="mt-0.5 text-xs text-[#8a8d91]">{s.label}</div>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
         </div>
