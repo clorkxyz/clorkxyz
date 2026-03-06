@@ -49,8 +49,14 @@ export async function POST(req: Request) {
         return NextResponse.json({ error: 'need buyerWallet, sellerWallet, priceSol' }, { status: 400 });
       }
 
-      const buyer = new PublicKey(buyerWallet);
-      const seller = new PublicKey(sellerWallet);
+      // Validate wallet addresses
+      let buyer: PublicKey, seller: PublicKey;
+      try {
+        buyer = new PublicKey(buyerWallet);
+        seller = new PublicKey(sellerWallet);
+      } catch {
+        return NextResponse.json({ error: `Invalid wallet address. Buyer: ${buyerWallet?.slice(0,8)}... Seller: ${sellerWallet?.slice(0,8)}...` }, { status: 400 });
+      }
       const lamports = Math.floor(priceSol * LAMPORTS_PER_SOL);
       const fee = Math.floor(lamports * 0.05); // 5% to clork
       const sellerAmount = lamports - fee;

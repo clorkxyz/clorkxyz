@@ -32,6 +32,7 @@ export default function Marketplace() {
   async function buy(l: Listing) {
     if (!publicKey || !connected) { connect(); return; }
     if (l.wallet === publicKey) return;
+    if (!l.wallet || l.wallet.length < 32) { setBuyError('Seller wallet not available for this listing'); return; }
     setBuying(l.id);
     setBuyError(null);
     try {
